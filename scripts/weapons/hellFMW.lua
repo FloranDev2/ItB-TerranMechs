@@ -8,11 +8,11 @@ local resources = mod_loader.mods[modApi.currentMod].resourcePath
 local fmw = require(scriptPath.."fmw/api")
 
 --
-local achvExt = require(scriptPath.."libs/achievementExt") --ok
+--local achvExt = require(scriptPath.."libs/achievementExt") --25/04/2023: will certainly need to be updated. Anyway, let's just comment that for now
 --LOG("[hellFMW] achvExt: " .. tostring(achvExt))
 
-local achievements = require(scriptPath.."achievements")
-LOG("[hellFMW] achievements: " .. tostring(achievements))
+--local achievements = require(scriptPath.."achievements") --25/04/2023: let's just put aside the achievements for now
+--LOG("[hellFMW] achievements: " .. tostring(achievements))
 
 ----------------------------------------------------- Icons
 
@@ -23,13 +23,14 @@ modApi:appendAsset("img/modes/icon_hellbat.png", resources .. "img/modes/icon_he
 
 ----------------------------------------------------- Achievements
 
-local HEAVENS_DEVILS_GOAL = 1 --3
+--local HEAVENS_DEVILS_GOAL = 1 --3 --Let's keep that commented
 
 
 
 
 ----------------------------------------------------- Custom functions
 
+--[[
 local additionalEnemyPawns =
 {
 	"Dam_Pawn"
@@ -46,6 +47,7 @@ local function isEnemyPawn(pawn)
 	end
 	return false
 end
+]]
 
 ----------------------------------------------------- Mode 1: Hellion
 
@@ -110,9 +112,13 @@ function truelch_HellMode1:fire(p1, p2, ret, fireDmg, immoFluid)
 						ret:AddDamage(immoFluidSpaceDamage)
 					end
 					-- Achv (Heaven's Devils) --->
-					if Board:GetPawn(adjacentPos) ~= nil and isEnemyPawn(Board:GetPawn(adjacentPos)) then
+					--if Board:GetPawn(adjacentPos) ~= nil and isEnemyPawn(Board:GetPawn(adjacentPos)) then
+					--Let's just comment achv stuff for now
+					--[[
+					if Board:GetPawn(adjacentPos) ~= nil and Board:GetPawn(adjacentPos):IsEnemy() then
 						ignitedEnemies = ignitedEnemies + 1
 					end
+					]]
 					-- <--- Achv (Heaven's Devils)
 
 				end
@@ -138,17 +144,24 @@ function truelch_HellMode1:fire(p1, p2, ret, fireDmg, immoFluid)
 			pushDamage.iFire = EFFECT_CREATE
 		end
 		-- Achv (Heaven's Devils) --->
-		if Board:GetPawn(curr) ~= nil and isEnemyPawn(Board:GetPawn(curr)) then
+		--if Board:GetPawn(curr) ~= nil and isEnemyPawn(Board:GetPawn(curr)) then
+		--Let's just comment achv stuff for now
+		--[[
+		if Board:GetPawn(curr) ~= nil and Board:GetPawn(curr):IsEnemy() then
 			ignitedEnemies = ignitedEnemies + 1
 		end
+		]]
 		-- <--- Achv (Heaven's Devils)
 	end
 	ret:AddDamage(pushDamage)
 
 	-- [END] Achv (Heaven's Devils) --->
+	--Let's just comment achv stuff for now
+	--[[
 	local isTargetEnemy = true
 	if Board:GetPawn(p2) ~= nil then
-		isTargetEnemy = isEnemyPawn(Board:GetPawn(p2))
+		--isTargetEnemy = isEnemyPawn(Board:GetPawn(p2))
+		isTargetEnemy = Board:GetPawn(p2):IsEnemy()
 	end
 
 	LOG("isTargetEnemy: " .. tostring(isTargetEnemy) .. ", ignitedEnemies: " .. tostring(ignitedEnemies))
@@ -156,6 +169,7 @@ function truelch_HellMode1:fire(p1, p2, ret, fireDmg, immoFluid)
 	if not isTargetEnemy and ignitedEnemies >= HEAVENS_DEVILS_GOAL then
 		ret:AddScript("completeHeavensDevils()")
 	end
+	]]
 	-- <--- [END] Achv (Heaven's Devils)
 end
 
@@ -207,9 +221,11 @@ function truelch_HellMode2:CustomShot(ret, p1, pos, direction, fireDmg, immoFlui
 						ret:AddDamage(immoFluidSpaceDamage)
 					end
 					-- Achv (Heaven's Devils) --->
-					if Board:GetPawn(adjacentPos) ~= nil and isEnemyPawn(Board:GetPawn(adjacentPos)) then
+					--[[
+					if Board:GetPawn(adjacentPos) ~= nil and Board:GetPawn(adjacentPos):IsEnemy() then
 						ignitedEnemies = ignitedEnemies + 1
 					end
+					]]
 					-- <--- Achv (Heaven's Devils)					
 				end
 			end
@@ -242,14 +258,16 @@ function truelch_HellMode2:fire(p1, p2, ret, fireDmg, immoFluid)
 	ignitedEnemies = self:CustomShot(ret, p1, pos, direction, fireDmg, immoFluid, ignitedEnemies)
 
 	-- [END] Achv (Heaven's Devils) --->
+	--[[
 	local isTargetEnemy = true
 	if Board:GetPawn(p2) ~= nil then
-		isTargetEnemy = isEnemyPawn(Board:GetPawn(p2))
+		isTargetEnemy = Board:GetPawn(p2):IsEnemy()
 	end
 
 	if not isTargetEnemy and ignitedEnemies >= HEAVENS_DEVILS_GOAL then
 		ret:AddScript("completeHeavensDevils()")
 	end
+	]]
 	-- <--- [END] Achv (Heaven's Devils)
 end
 

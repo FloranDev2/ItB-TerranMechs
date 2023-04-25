@@ -3,14 +3,14 @@ local path = mod_loader.mods[modApi.currentMod].scriptPath
 local resources = mod_loader.mods[modApi.currentMod].resourcePath
 
 local fmw = require(path.."fmw/api")
---[[local testLapi = ]]require(path .. "LApi/LApi")
+--require(path .. "LApi/LApi")
 
-local globals = LApi.library:fetch("globals")
-local weaponPreview = LApi.library:fetch("weaponPreview") --ok
---local weaponPreview = require("libs/weaponPreview")
+--local globals = LApi.library:fetch("globals") --25/04/2023
+--local weaponPreview = LApi.library:fetch("weaponPreview") --25/04/2023 was that
+local weaponPreview = require("libs/weaponPreview") --but since LApi doesn't exist anymore, let's just use that
 --LOG("\n\n\n weaponPreview: " .. tostring(weaponPreview) .. "\n\n\n")
 
-local globalPawnIndex = globals:new()
+--local globalPawnIndex = globals:new() --25/04/2023
 
 --Icons
 modApi:appendAsset("img/weapons/crucio_weapons.png", resources .."img/weapons/crucio_weapons.png")
@@ -18,23 +18,9 @@ modApi:appendAsset("img/weapons/crucio_weapons.png", resources .."img/weapons/cr
 modApi:appendAsset("img/modes/icon_crucio_tank.png", resources .. "img/modes/icon_crucio_tank.png")
 modApi:appendAsset("img/modes/icon_crucio_siege.png", resources .. "img/modes/icon_crucio_siege.png")
 
---Combat
---modApi:appendAsset("img/combat/truelch_arrow_hit.png", resources .. "img/combat/truelch_arrow_hit.png")
-
---Error with modApi:appendCombatAssets
---[[
-modApi:appendCombatAssets("img/combat", "truelch_")
-
-modApi:copyAsset(
-	"img/combat/arrow_hit.png", 
-	"img/combat/truelch_arrow_hit.png"
-)
-
-Location["combat/truelch_arrow_hit.png"] = Point(-15,6)
-]]
-
-
 ----------------------------------------------------- Utility functions
+
+--[[
 local additionalEnemyPawns =
 {
 	"Dam_Pawn"
@@ -51,7 +37,7 @@ local function isEnemyPawn(pawn)
 	end
 	return false
 end
-
+]]
 
 ----------------------------------------------------- Dummy wall (stealing it from you Lemonymous ^^)
 truelch_Wall = Pawn:new{
@@ -100,7 +86,8 @@ function truelch_CrucioMode1:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, SiegeSe
 
 	--Friendly fire
 	local targetPawn = Board:GetPawn(target)
-	if targetPawn ~= nil and not isEnemyPawn(targetPawn) and not friendlyFire then
+	--if targetPawn ~= nil and not isEnemyPawn(targetPawn) and not friendlyFire then
+	if targetPawn ~= nil and not targetPawn:IsEnemy() and not friendlyFire then
 		tankDmg = 0
 	elseif Board:IsBuilding(target) and not friendlyFire then
 		tankDmg = 0
@@ -183,14 +170,15 @@ function truelch_CrucioMode2:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, siegeSe
 	---- MAIN TARGET ---
 	--Friendly fire --->
 	local targetPawn = Board:GetPawn(p2)
-	if targetPawn ~= nil and not isEnemyPawn(targetPawn) and not friendlyFire then
+	--if targetPawn ~= nil and not isEnemyPawn(targetPawn) and not friendlyFire then
+	if targetPawn ~= nil and not targetPawn:IsEnemy() and not friendlyFire then
 		siegePrimaryDmg = 0
 	elseif Board:IsBuilding(p2) and not friendlyFire then
 		siegePrimaryDmg = 0
 	end
 	-- <--- Friendly fire
 
-	local damage = SpaceDamage(p2, siegePrimaryDmg)	
+	local damage = SpaceDamage(p2, siegePrimaryDmg)
 
 	if ANIMS[self.innerAnim .. direction] then
 		damage.sAnimation = self.innerAnim .. direction
@@ -269,7 +257,6 @@ function truelch_CrucioMode2:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, siegeSe
 		ret:AddDamage(push_event)
 	end
 
-	--if self.pull then
 	if self.pull then
 		if collisionInCenter then
 			--LOG("[TRUELCH] -----> OK ")

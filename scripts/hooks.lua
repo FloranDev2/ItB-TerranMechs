@@ -8,12 +8,6 @@ local utils = require(scriptPath .."libs/utils")
 local truelch_terran_fmw = require(scriptPath .. "fmw/FMW") --not needed?
 local truelch_terran_fmwApi = require(scriptPath .. "fmw/api") --that's what I needed!
 
---Test
-local extDir = scriptPath .. "modApiExt/"
-local truelch_terran_ModApiExt = require(extDir .. "modApiExt")
-
---LApi
-local testLapi = require(scriptPath .. "LApi/LApi")
 
 
 ----------------------------------------------- MISSION / GAME FUNCTIONS -----------------------------------------------
@@ -351,8 +345,8 @@ end
 
 local function EVENT_onModsLoaded()
     modApi:addNextTurnHook(HOOK_onNextTurnHook)
-    truelch_terran_ModApiExt:addSkillEndHook(HOOK_onSkillEnd)
-    truelch_terran_ModApiExt:addPawnUndoMoveHook(HOOK_onPawnUndoMove)
+    modapiext:addSkillEndHook(HOOK_onSkillEnd) --truelch_terran_ModApiExt:addSkillEndHook(HOOK_onSkillEnd)
+    modapiext:addPawnUndoMoveHook(HOOK_onPawnUndoMove) --truelch_terran_ModApiExt:addPawnUndoMoveHook(HOOK_onPawnUndoMove)
     modApi:addPostLoadGameHook(HOOK_onPostLoadGame)
     modApi:addMissionStartHook(HOOK_onMissionStart)
     --modApi:addMissionEndHook(HOOK_onMissionEnd)

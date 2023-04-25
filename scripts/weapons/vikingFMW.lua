@@ -21,6 +21,7 @@ modApi:appendAsset("img/effects/shotup_torpedo_phobos.png",  resources .. "img/e
 
 ----------------------------------------------------- Custom functions
 
+--[[
 local additionalEnemyPawns =
 {
 	"Dam_Pawn"
@@ -37,12 +38,13 @@ local function isEnemyPawn(pawn)
 	end
 	return false
 end
+]]
 
 --Should it only target enemy pawns?
 --Would be too powerful I guess
 local function computeSideAoE(ret, sidePos, dir)
 	local pawn = Board:GetPawn(sidePos)
-	if pawn ~= nil and isEnemyPawn(pawn) then
+	if pawn ~= nil and pawn:IsEnemy() then
 		local aoeSpaceDamage = SpaceDamage(sidePos, 1)
 		aoeSpaceDamage.sAnimation = "airpush_"..((dir+1)%4)
 		ret:AddDamage(aoeSpaceDamage)

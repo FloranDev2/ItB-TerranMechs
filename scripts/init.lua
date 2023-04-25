@@ -44,12 +44,12 @@ function mod:init()
 	require(self.scriptPath .. "hooks")
 
 	--Achievements
-	require(self.scriptPath .. "achievements")
+	--require(self.scriptPath .. "achievements") --commented for now
 end
 
 function mod:load(options, version)
 	--modApiExt
-	truelch_terran_ModApiExt:load(self, options, version)
+	modapiext:load(self, options, version)
 
 	--FMW
 	require(self.scriptPath .. "fmw/FMW"):load()
