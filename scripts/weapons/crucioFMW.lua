@@ -7,7 +7,7 @@ local fmw = require(path.."fmw/api")
 
 --local globals = LApi.library:fetch("globals") --25/04/2023
 --local weaponPreview = LApi.library:fetch("weaponPreview") --25/04/2023 was that
-local weaponPreview = require("libs/weaponPreview") --but since LApi doesn't exist anymore, let's just use that
+local weaponPreview = require(path .. "libs/weaponPreview") --but since LApi doesn't exist anymore, let's just use that
 --LOG("\n\n\n weaponPreview: " .. tostring(weaponPreview) .. "\n\n\n")
 
 --local globalPawnIndex = globals:new() --25/04/2023
@@ -126,7 +126,7 @@ truelch_CrucioMode2 = truelch_CrucioMode1:new{
 	innerAnim = "ExploArt2",
 	outerAnim = "explopush1_",
 	--GamePlay
-	pull = true, --pull = false,
+	pull = false, --test
 }
 
 function truelch_CrucioMode2:targeting(point)
@@ -245,7 +245,7 @@ function truelch_CrucioMode2:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, siegeSe
 		--importing my logic here --->
 		local targetPawn2 = Board:GetPawn(loc)
 		--if targetPawn2 ~= nil and isFriendlyPawn(targetPawn2) and not friendlyFire then
-		if targetPawn2 ~= nil and not isEnemyPawn(targetPawn2) and not friendlyFire then
+		if targetPawn2 ~= nil and not targetPawn2:IsEnemy() and not friendlyFire then
 			siegeSecondaryDmg = 0
 		elseif Board:IsBuilding(loc) and not friendlyFire then
 			siegeSecondaryDmg = 0
@@ -282,6 +282,7 @@ function truelch_CrucioMode2:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, siegeSe
 			--add events for add/rem invisible dummy unit
 			pre_event = ret.effect:index(pre_event_index)
 
+			--crucioFMW.lua:285: bad argument #2 to 'format' (string expected, got nil)
 			pre_event.sScript = string.format([[
 				local pawn = PAWN_FACTORY:CreatePawn("truelch_Wall")
 				globals[%s] = pawn:GetId()

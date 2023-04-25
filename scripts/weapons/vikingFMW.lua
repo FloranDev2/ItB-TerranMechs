@@ -147,7 +147,7 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 	--Bonus damage against Flying and Massive units!
 	if targetPawn ~= nil then
 		local bonusDmgOk = targetPawn:IsFlying() or targetPawn:IsMassive()
-		bonusDmgOk = bonusDmgOk and isEnemyPawn(targetPawn)
+		bonusDmgOk = bonusDmgOk and targetPawn:IsEnemy()
 		if bonusDmgOk then
 			dmg = self.BonusDmg
 			if phobos then
