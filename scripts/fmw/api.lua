@@ -1,0 +1,342 @@
+---- FIRING MODE WEAPON FRAMEWORK V8.2 ----
+----  MUST BE INITIALIZED & LOADED   ----
+----    MODAPIEXT MUST BE LOADED     ----
+
+local mod = mod_loader.mods[modApi.currentMod]
+local path = mod.scriptPath
+local modApiExt = modApiExt_internal.getMostRecent()
+local atlaslib = require(path.."fmw/libs/ATLASlib")
+
+local this = {}
+
+atlas_FiringModeWeaponFramework = atlas_FiringModeWeaponFramework or {vers, hkRegistry = {}, repair = {}, move = {}}
+local aFMWF = atlas_FiringModeWeaponFramework
+
+aFM_WeaponTemplate = Skill:new{
+	Name = "FM Weapon Template",
+	Description = "",
+	Class = "Any",
+	aFM_ModeList = {},
+	aFM_ModeSwitchDesc = ""
+}
+
+-- returns whether or not a pawn has an FM skill
+-- p: pawn space or id
+function this:HasSkill(p)
+	if Board and Board:GetPawn(p) then
+		if Board:GetPawn(p):GetArmedWeaponId() == 50 and aFMWF.repair.aFM_ModeList[1] then
+			return true
+		end
+
+		if Board:GetPawn(p):GetArmedWeaponId() == 0 and aFMWF.move.aFM_ModeList[1] then
+			return true
+		end
+
+		local weapons = atlaslib:getPoweredWeapons(p)
+
+		for _, weapon in pairs(weapons) do
+			if _G[weapon] and _G[weapon].aFM_ModeList then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+-- checks if the skill at the specified index is an FM skill and returns its object
+-- p: pawn space or id
+-- weaponIdx: skill index (1, 2, 50 [repair], 0 [move])
+function this:GetSkill(p, weaponIdx, onlyId)
+	if Board and Board:GetPawn(p) then
+		if weaponIdx == 50 and aFMWF.repair.aFM_ModeList[1] then
+			return onlyId and "Skill_Repair" or aFMWF.repair
+		elseif weaponIdx == 0 and aFMWF.move.aFM_ModeList[1] then
+			return onlyId and "Move" or aFMWF.move
+		end
+        
+        weapon = atlaslib:getPoweredWeapons(p, true)[weaponIdx]
+
+		if _G[weapon] and _G[weapon].aFM_ModeList then
+			return onlyId and weapon or _G[weapon]
+		end
+	end
+
+	return nil
+end
+
+-- checks if the skill at the specified index or object is an FM skill and returns its id
+-- p: pawn space or id
+-- weapon: skill index (1, 2, 50 [repair], 0 [move]) or skill object (table)
+function this:GetSkillId(p, weapon)
+	if type(weapon) == "table" then
+		weaponIdx = this:GetSkillIdx(p, weapon)
+	else
+		weaponIdx = weapon
+	end
+
+	return this:GetSkill(p, weaponIdx, true)
+end
+
+-- checks if a pawn has the specified FM skill and returns its index
+-- p: pawn space or id
+-- weapon: skill object
+function this:GetSkillIdx(p, weapon)
+	for _, i in pairs({1, 2, 50, 0}) do
+		if this:GetSkillId(p, i) == "Skill_Repair" then
+			return 50
+		elseif this:GetSkillId(p, i) == "Move" then
+			return 0
+		end
+
+		if this:GetSkill(p, i) == weapon then
+			return i
+		end
+	end
+end
+
+-- checks for powered FM passives
+-- returns skill object, skill index, and owner (pawn object)
+function this:GetActivePassive()
+	if Board then
+		for i, p in pairs(extract_table(Board:GetPawns(TEAM_MECH))) do
+			for passiveIdx = 1, 2 do
+				local p = Board:GetPawn(p)
+
+				local passive = this:GetSkill(p:GetSpace(), passiveIdx)
+
+				if passive and passive.Passive ~= "" then
+					return passive, passiveIdx, p
+				end
+			end
+		end
+	end
+
+	return nil
+end
+
+-- checks for armed FM weapons
+-- returns skill object, skill index, and owner (pawn object)
+function this:GetActiveWeapon()
+	local Pawn = atlaslib:Pawn()
+
+	if Pawn then
+		local pSpace = Pawn:GetSpace()
+		local armedId = Pawn:GetArmedWeaponId()
+
+		if armedId == 50 and aFMWF.repair.aFM_ModeList[1] then
+			return aFMWF.repair, armedId, Board:GetPawn(pSpace)
+		elseif armedId == 0 and aFMWF.move.aFM_ModeList[1] then
+			return aFMWF.move, armedId, Board:GetPawn(pSpace)
+		end
+
+		local weapon = this:GetSkill(pSpace, armedId)
+
+		if weapon then
+			return weapon, armedId, Board:GetPawn(pSpace)
+		end
+	end
+
+	return nil
+end
+
+-- checks for armed FM weapons first, then FM passives
+-- returns skill object, skill index, and owner (pawn object)
+function this:GetActiveSkill()
+	if this:GetActiveWeapon() then
+		return this:GetActiveWeapon()
+	else
+		return this:GetActivePassive()
+	end
+
+	return nil
+end
+
+-- call this in the GetTargetArea function of your FM repair skill
+-- modeList: table containing mode id's (strings)
+-- modeSwitchDesc: description of mode switch button
+function this:RegisterRepair(modeList, modeSwitchDesc)
+	aFMWF.repair.aFM_ModeList = modeList
+	aFMWF.repair.aFM_ModeSwitchDesc = modeSwitchDesc
+end
+
+-- call this in the GetTargetArea function of your FM move skill
+-- modeList: table containing mode id's (strings)
+-- modeSwitchDesc: description of mode switch button
+function this:RegisterMove(modeList, modeSwitchDesc)
+	aFMWF.move.aFM_ModeList = modeList
+	aFMWF.move.aFM_ModeSwitchDesc = modeSwitchDesc
+end
+
+-- called whenever the current mode is switched out for a different mode
+-- p: pawn space
+function aFM_WeaponTemplate:FM_OnModeSwitch(p)
+	-- do stuff
+end
+
+-- returns id (string) of current mode
+-- p: pawn space or id
+function aFM_WeaponTemplate:FM_GetMode(p)
+	local m = GetCurrentMission()
+
+	local pId = Board:GetPawn(p):GetId()
+
+	-- check if this is being called from a tip image
+	if not m or not modApiExt.pawn:getSavedataTable(pId) then
+		return self.aFM_ModeList[1]
+	end
+
+	local weaponIdx = this:GetSkillIdx(p, self)
+
+	if not m.atlas_CurrentFiringModes[pId] then
+		return
+	end
+    
+	if not m.atlas_CurrentFiringModes[pId][weaponIdx] then
+		return
+	end
+
+	return m.atlas_CurrentFiringModes[pId][weaponIdx]
+end
+
+-- sets current mode to specified mode
+-- p: pawn space or id
+-- mode: mode id (string)
+function aFM_WeaponTemplate:FM_SetMode(p, mode)
+	local m = GetCurrentMission()
+	local pId = Board:GetPawn(p):GetId()
+	local weaponIdx = this:GetSkillIdx(p, self)
+
+	Game:TriggerSound("/ui/general/button_confirm")
+	m.atlas_CurrentFiringModes[pId][weaponIdx] = mode
+
+	if self.Passive == "" then
+		-- selecting a new mode while the weapon has a target highlighted
+		-- will not update the weapon with the mode's effects
+		-- forcing the weapon to fire on a point not in its GetTargetArea will update it
+
+		local oldGTA = self.GetTargetArea
+		self.GetTargetArea = function() return PointList():push_back(Point(9,9)) end
+
+		Board:GetPawn(p):FireWeapon(Point(400,400), weaponIdx)
+
+		self.GetTargetArea = oldGTA
+	end
+end
+
+-- checks if mode switch button is disabled
+-- p: pawn space or id
+function aFM_WeaponTemplate:FM_IsModeSwitchDisabled(p)
+	local m = GetCurrentMission()
+	local pId = Board:GetPawn(p):GetId()
+	local weaponIdx = this:GetSkillIdx(p, self)
+
+	return m.atlas_DisabledModeSwitch[pId][weaponIdx]
+end
+
+-- disables/enables (true, false) mode switch button
+-- p: pawn space or id
+-- b: boolean
+function aFM_WeaponTemplate:FM_SetModeSwitchDisabled(p, b)
+	local m = GetCurrentMission()
+	local pId = Board:GetPawn(p):GetId()
+	local weaponIdx = this:GetSkillIdx(p, self)
+
+	m.atlas_DisabledModeSwitch[pId][weaponIdx] = b
+end
+
+-- enables mode switch button
+-- p: pawn space or id
+function aFM_WeaponTemplate:FM_EnableModeSwitch(p)
+	self:FM_SetModeSwitchDisabled(p, false)
+end
+
+-- disables mode switch button
+-- p: pawn space or id
+function aFM_WeaponTemplate:FM_DisableModeSwitch(p)
+	self:FM_SetModeSwitchDisabled(p, true)
+end
+
+-- returns # of uses specified mode has left
+-- p: pawn space or id
+-- mode: mode id (string)
+function aFM_WeaponTemplate:FM_GetUses(p, mode)
+	local m = GetCurrentMission()
+	local pId = Board:GetPawn(p):GetId()
+
+	if not m or not modApiExt.pawn:getSavedataTable(pId) then
+		return -1
+	end
+
+	local weaponIdx = this:GetSkillIdx(p, self)
+
+	return m.atlas_LimitedFiringModes[pId][weaponIdx][mode]
+end
+
+-- sets # of uses of specified mode to 'i'
+-- p: pawn space or id
+-- mode: mode id (string)
+function aFM_WeaponTemplate:FM_SetUses(p, mode, i)
+	--LOG("\n\n------------------------------------ FM_WeaponTemplate:FM_SetUses(p: " .. p:GetString() .. ", mode: " .. tostring(mode) .. ", i: " .. tostring(i) .. ")\n\n")
+
+	--LOG("\n\nself: " .. tostring(self) .. "\n\n")
+	--LOG("\n\type: " .. tostring(type(self)) .. "\n\n")
+
+	local m = GetCurrentMission()
+    
+    if not m then return end 
+    
+	local weaponIdx = this:GetSkillIdx(p, self)
+	local pId = Board:GetPawn(p):GetId()
+
+	--LOG("\n\nweaponIdx: " .. tostring(weaponIdx) .. ", pId: " .. tostring(pId) .. "\n\n")
+
+	m.atlas_LimitedFiringModes[pId][weaponIdx][mode] = i
+end
+
+-- adds # of uses of specified mode by 'i'
+-- p: pawn space or id
+-- mode: mode id (string)
+function aFM_WeaponTemplate:FM_AddUses(p, mode, i)
+	local limited = self:FM_GetUses(p, mode) + i
+
+	self:FM_SetUses(p, mode, limited)
+end
+
+-- subtracts # of uses of specified mode by 'i'
+-- p: pawn space or id
+-- mode: mode id (string)
+function aFM_WeaponTemplate:FM_SubUses(p, mode, i)
+	self:FM_AddUses(p, mode, -i)
+end
+
+-- identical to self:FM_SetUses(p, mode, 0)
+-- p: pawn space or id
+-- mode: mode id (string)
+function aFM_WeaponTemplate:FM_DisableMode(p, mode)
+	self:FM_SetUses(p, mode, 0)
+end
+
+-- identical to self:FM_SetUses(p, mode, -1)
+-- p: pawn space or id
+-- mode: mode id (string)
+function aFM_WeaponTemplate:FM_EnableMode(p, mode)
+	self:FM_SetUses(p, mode, -1)
+end
+
+-- checks if the specified mode is disabled
+-- p: pawn space or id
+-- mode: mode id (string)
+function aFM_WeaponTemplate:FM_ModeDisabled(p, mode)
+	return self:FM_GetUses(p, mode) == 0
+end
+
+-- checks if the current mode is not nil and not disabled
+-- p: pawn space or id
+function aFM_WeaponTemplate:FM_CurrentModeReady(p)
+	local currentMode = self:FM_GetMode(p)
+
+	return currentMode and self:FM_GetUses(p, currentMode) ~= 0
+end
+
+return this
