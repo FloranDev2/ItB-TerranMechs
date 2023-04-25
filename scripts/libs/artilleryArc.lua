@@ -1,7 +1,7 @@
 
-local VERSION = "1.1.1"
+local VERSION = "1.2.0"
 ---------------------------------------------------
--- Artillery Arc v1.1.0 - code library
+-- Artillery Arc - code library
 --
 -- by Lemonymous
 ---------------------------------------------------
@@ -24,9 +24,16 @@ local VERSION = "1.1.1"
 -- height. The library will handle resetting the
 -- value automatically.
 --
+-- requires
+--    modApiExt
+--    weaponArmed
+--
 ---------------------------------------------------
 
-local weaponArmed = LApi.library:fetch("weaponArmed")
+local mod = modApi:getCurrentMod()
+local path = GetParentPath(...)
+local weaponArmed = require(path.."weaponArmed")
+local modApiExt = modapiext or require(mod.scriptPath.."modApiExt/modApiExt")
 local DEFAULT_HEIGHT = 18
 
 local function onModsInitialized()
@@ -52,7 +59,7 @@ local isNewestVersion = false
 if isNewestVersion then
 	ArtilleryArc = ArtilleryArc or {}
 	ArtilleryArc.version = VERSION
-	
+
 	local function resetArtilleryHeight()
 		Values.y_velocity = DEFAULT_HEIGHT
 	end
@@ -88,6 +95,18 @@ if isNewestVersion then
 		resetArtilleryHeight()
 	end
 
+	ArtilleryArc.onSkillEnd = function(mission, pawn, weaponId, p1, p2)
+		local hoveredSkill = modApi:getHoveredSkill()
+		if hoveredSkill then return end
+
+		local armedSkill = weaponArmed:getArmedWeapon()
+		if armedSkill then
+			setSkillArtilleryHeight(armedSkill)
+		else
+			resetArtilleryHeight()
+		end
+	end
+
 	ArtilleryArc.onTipImageShown = function(hoveredSkill)
 		setSkillArtilleryHeight(hoveredSkill)
 	end
@@ -113,6 +132,7 @@ if isNewestVersion then
 	function ArtilleryArc:finalizeInit()
 		weaponArmed.events.onWeaponArmed:subscribe(self.onWeaponArmed)
 		weaponArmed.events.onWeaponUnarmed:subscribe(self.onWeaponUnarmed)
+		modApiExt.events.onSkillEnd:subscribe(self.onSkillEnd)
 		modApi.events.onTipImageShown:subscribe(self.onTipImageShown)
 		modApi.events.onTipImageHidden:subscribe(self.onTipImageHidden)
 		modApi.events.onMissionUpdate:subscribe(self.onMissionUpdate)

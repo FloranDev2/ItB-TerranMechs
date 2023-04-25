@@ -1,10 +1,14 @@
 local mod = {
 	id = "truelch_TerranMechs",
 	name = "Terran Mechs",
-	version = "1.0.1",
-	requirements = { "kf_ModUtils" },
-	modApiVersion = "2.6.4",
-	icon = "img/mod_icon.png"
+	icon = "img/mod_icon.png",
+	version = "2.0.0",
+	modApiVersion = "2.9.1",
+	gameVersion = "1.2.88",
+    dependencies = {
+        modApiExt = "1.17",
+		memedit = "1.0.1",
+    }
 }
 
 function mod:init()
@@ -16,20 +20,7 @@ function mod:init()
 	require(self.scriptPath .. "mechs/viking")
 	require(self.scriptPath .. "mechs/crucio")
 	
-    --modApiExt
-	if modApiExt then
-	    -- modApiExt already defined. This means that the user has the complete
-	    -- ModUtils package installed. Use that instead of loading our own one.
-	    truelch_terran_ModApiExt = modApiExt
-	else
-	    -- modApiExt was not found. Load our inbuilt version
-	    local extDir = self.scriptPath .. "modApiExt/"
-	    truelch_terran_ModApiExt = require(extDir .. "modApiExt")
-	    truelch_terran_ModApiExt:init(extDir)
-	end
-
 	--Libs
-	require(self.scriptPath .. "LApi/LApi")
 	require(self.scriptPath .. "libs/artilleryArc")
 
 	-- FMW ----->
