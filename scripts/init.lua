@@ -44,7 +44,7 @@ function mod:init()
 	require(self.scriptPath .. "hooks")
 
 	--Achievements
-	--require(self.scriptPath .. "achievements") --commented for now
+	require(self.scriptPath .. "achievements") --commented for now
 end
 
 function mod:load(options, version)

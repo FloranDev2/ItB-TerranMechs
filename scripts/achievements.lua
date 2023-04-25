@@ -10,7 +10,7 @@
 ----------------------------------------------------- Defs
 
 local mod = modApi:getCurrentMod()
-local modApiExt = LApi.library:fetch("modApiExt/modApiExt", nil, "ITB-ModUtils") --Oh it worked apparently
+--local modApiExt = LApi.library:fetch("modApiExt/modApiExt", nil, "ITB-ModUtils") --Oh it worked apparently
 local scriptPath = mod.scriptPath
 local utils = require(scriptPath .. "libs/utils")
 local difficultyEvents = require(scriptPath .. "libs/difficultyEvents")
@@ -39,12 +39,6 @@ LOG("game_savedata: " .. tostring(game_savedata))
 
 
 ----------------------------------------------------- My Helper functions
-local function isEnemyPawn(pawn)
-	if pawn:GetTeam() == TEAM_ENEMY then
-		return true
-	end
-	return false
-end
 
 local function countNonFrozenEnemies()
 	local enemyCount = 0
@@ -52,7 +46,7 @@ local function countNonFrozenEnemies()
 		for j = 0, 7  do
 			local point = Point(i, j)
 			local pawn = Board:GetPawn(point)
-			if Board:IsPawnSpace(point) and isEnemyPawn(Board:GetPawn(point)) and not pawn:IsFrozen() then
+			if Board:IsPawnSpace(point) and Board:GetPawn(point):IsEnemy() and not pawn:IsFrozen() then
 				enemyCount = enemyCount + 1
 			end
 		end
@@ -134,20 +128,6 @@ local function missionData()
 	end
 
 	return mission.truelch_TerranMechs.achievementData
-end
-
-local function isEnemyPawn(pawn)
-	if pawn:GetTeam() == TEAM_ENEMY then --should be enough to cover every enemy. I guess
-		return true
-	elseif pawn:GetTeam() == TEAM_BOTS then
-		LOG("TRUELCH - WTF")
-		return true
-	elseif pawn:GetTeam() == TEAM_ENEMY_MAJOR then
-		LOG("TRUELCH - WTF")
-		return true
-	else
-		return false
-	end
 end
 
 ----------------------------------------------------- Achievements declaration
@@ -407,8 +387,8 @@ end
 local function EVENT_onModsLoaded()
 	modApi:addMissionStartHook(HOOK_onMissionStart)
 	modApi:addNextTurnHook(HOOK_onNextTurnHook)
-    modApiExt:addSkillEndHook(HOOK_onSkillEnd)
-    modApiExt:addPawnUndoMoveHook(HOOK_onPawnUndoMove)
+    modapiext:addSkillEndHook(HOOK_onSkillEnd) --modApiExt:addSkillEndHook(HOOK_onSkillEnd)
+    modapiext:addPawnUndoMoveHook(HOOK_onPawnUndoMove) --modApiExt:addPawnUndoMoveHook(HOOK_onPawnUndoMove)
     --modApiExt:addBuildingDestroyedHook(HOOK_onBuildingDestroyed) --Is only called when a complete building block is destroyed
     modApi:addMissionEndHook(HOOK_onMissionEnd)
 end

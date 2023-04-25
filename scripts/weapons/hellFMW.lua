@@ -8,10 +8,10 @@ local resources = mod_loader.mods[modApi.currentMod].resourcePath
 local fmw = require(scriptPath.."fmw/api")
 
 --
---local achvExt = require(scriptPath.."libs/achievementExt") --25/04/2023: will certainly need to be updated. Anyway, let's just comment that for now
+local achvExt = require(scriptPath.."libs/achievementExt") --25/04/2023: will certainly need to be updated. Anyway, let's just comment that for now
 --LOG("[hellFMW] achvExt: " .. tostring(achvExt))
 
---local achievements = require(scriptPath.."achievements") --25/04/2023: let's just put aside the achievements for now
+local achievements = require(scriptPath.."achievements") --25/04/2023: let's just put aside the achievements for now
 --LOG("[hellFMW] achievements: " .. tostring(achievements))
 
 ----------------------------------------------------- Icons
@@ -23,7 +23,7 @@ modApi:appendAsset("img/modes/icon_hellbat.png", resources .. "img/modes/icon_he
 
 ----------------------------------------------------- Achievements
 
---local HEAVENS_DEVILS_GOAL = 1 --3 --Let's keep that commented
+local HEAVENS_DEVILS_GOAL = 1 --3 --Let's keep that commented
 
 
 
@@ -78,7 +78,6 @@ function truelch_HellMode1:fire(p1, p2, ret, fireDmg, immoFluid)
 	local distance = p1:Manhattan(p2)
 
 	--Achv
-	--ret:AddScript("completeHeavensDevils()") --dis is da waey
 	local ignitedEnemies = 0
 
 	--test
@@ -114,11 +113,9 @@ function truelch_HellMode1:fire(p1, p2, ret, fireDmg, immoFluid)
 					-- Achv (Heaven's Devils) --->
 					--if Board:GetPawn(adjacentPos) ~= nil and isEnemyPawn(Board:GetPawn(adjacentPos)) then
 					--Let's just comment achv stuff for now
-					--[[
 					if Board:GetPawn(adjacentPos) ~= nil and Board:GetPawn(adjacentPos):IsEnemy() then
 						ignitedEnemies = ignitedEnemies + 1
 					end
-					]]
 					-- <--- Achv (Heaven's Devils)
 
 				end
