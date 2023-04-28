@@ -65,7 +65,7 @@ VikingMech = Pawn:new{
 	Image = "viking_fighter",
 	ImageOffset = imageOffset,
 	
-	SkillList = { "truelch_VikingWeapon" },
+	SkillList = { "truelch_VikingWeapon" }, --"CyborgWeapons_BloodyStream" --"mini_Multishot"
 
 	SoundLocation = "/mech/prime/punch_mech/",
 	ImpactMaterial = IMPACT_METAL,
