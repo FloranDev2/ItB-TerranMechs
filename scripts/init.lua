@@ -19,6 +19,7 @@ function mod:init()
 	require(self.scriptPath .. "mechs/hell")
 	require(self.scriptPath .. "mechs/viking")
 	require(self.scriptPath .. "mechs/crucio")
+	require(self.scriptPath .. "mechs/liberator")
 	
 	--Libs
 	require(self.scriptPath .. "libs/artilleryArc")
@@ -35,6 +36,7 @@ function mod:init()
 	require(self.scriptPath .. "/weapons/hellFMW")
 	require(self.scriptPath .. "/weapons/vikingFMW_BackUp") --vikingFMW_BackUp --vikingFMW
 	require(self.scriptPath .. "/weapons/crucioFMW")
+	require(self.scriptPath .. "/weapons/FMweapon_example")
 	-- <----- FMW
 
 	--Test
@@ -63,7 +65,7 @@ function mod:load(options, version)
 			"Terran Mechs",
 			"HellMech",
 			"VikingMech",
-			"CrucioMech"
+			"LiberatorMech" --"CrucioMech"
 		},
 		"Terran Mechs",
 		"The numerous parallel timelines created a breach to the Koprulu System.\nA Squad of Terran Mechs has been trapped and fights its way back to the Terran Dominion!",
