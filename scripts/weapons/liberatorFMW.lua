@@ -16,34 +16,61 @@ modApi:appendAsset("img/effects/shotup_acidshell_missile.png", resources.."img/e
 modApi:appendAsset("img/effects/shotup_smokeshell_missile.png", resources.."img/effects/shotup_smokeshell_missile.png")
 
 
+
+--Icons
+modApi:appendAsset("img/weapons/liberator_weapons.png", resources .."img/weapons/liberator_weapons.png")
+
+modApi:appendAsset("img/modes/icon_liberator_fighter.png", resources .. "img/modes/icon_liberator_fighter.png")
+modApi:appendAsset("img/modes/icon_liberator_defender.png", resources .. "img/modes/icon_liberator_defender.png")
+
+
+
+
+function tableContains(table, value)
+  for i = 1, #testTable do
+    if (testTable[i] == value) then
+      return true
+    end
+  end
+  return false
+end
+
+local unauthorizedPoints = {
+	Point(-2, -2),
+	Point(-2,  2),
+	Point( 0,  0),
+	Point( 2, -2),
+	Point( 2,  2)
+}
+
+function isAuthorizedPoint(point)
+	for _, p in ipairs(unauthorizedPoints) do
+		if p == point then
+			return false
+		end
+	end
+	return true
+end
+
+
 ----------------------------------------------------- Mode 1: Fighter
 
 truelch_LiberatorMode1 = {
-	aFM_name = "Fighter Mode",												 -- required
-	aFM_desc = "Can move normally.",				 -- required
-	aFM_icon = "img/shells/icon_standard_shell.png",	 						 -- required (if you don't have an image an empty string will work) 
-	-- aFM_limited = 2, 														 -- optional (FMW will automatically handle uses for weapons)
-	-- aFM_handleLimited = false 												 -- optional (FMW will no longer automatically handle uses for this mode if set) 
-
-
-	--[[
-	minrange = 2,
-	maxrange = 8,
-	innerDamage = 2,
-	innerEffect = nil,
-	innerPush = false,
-	innerAnim = "ExploArt2",
-	innerBounce = 2, 
-	AOE = true, 
-	outerDamage = 1,
-	outerEffect = nil,
-	outerPush = true,
-	outerAnim = "explopush1_",
-	outerBounce = 1,
-	impactsound = "/impact/generic/explosion_large",
-	image = "effects/shotup_standardshell_missile.png",
-	]]
+	aFM_name = "Fighter Mode",
+	aFM_desc = "Can move normally.",
+	aFM_icon = "img/modes/icon_liberator_fighter.png",
+	--aFM_twoClick = true,
 }
+
+--[[
+function truelch_LiberatorMode1:second_targeting(p1, p2) 
+    return Ranged_TC_BounceShot.GetSecondTargetArea(Ranged_TC_BounceShot, p1, p2)
+end
+
+function truelch_LiberatorMode1:second_fire(p1, p2, p3)
+    return Ranged_TC_BounceShot.GetFinalEffect(Ranged_TC_BounceShot, p1, p2, p3)
+end
+]]
 
 CreateClass(truelch_LiberatorMode1)
 
@@ -51,12 +78,31 @@ CreateClass(truelch_LiberatorMode1)
 function truelch_LiberatorMode1:targeting(point)
 	local points = {}
 
+	--[[
+	local dir = 0 --test
 	for dir = 0, 3 do
-		for i = self.minrange, self.maxrange do
-			local curr = point + DIR_VECTORS[dir]*i
-			points[#points+1] = curr
+		for j = -1, 1 do
+			for i = 1, 2 do
+				local left = DIR_VECTORS[(dir-1)%4]
+				LOG("left: " .. tostring(left))
+				local curr = point + DIR_VECTORS[dir]*i + DIR_VECTORS[left]*j
+				if not tableContains(points, curr) then				
+					points[#points+1] = curr
+				end
+			end
 		end
 	end
+	]]
+
+	for j = -2, 2 do
+		for i = -2, 2 do
+			local curr = point + Point(i, j)
+			if isAuthorizedPoint(curr) then
+				points[#points+1] = curr
+			end
+		end
+	end
+
 	return points
 end
 
@@ -103,8 +149,8 @@ truelch_LiberatorMode2 = truelch_LiberatorMode1:new{
 	aFM_name = "Defender Mode",
 	aFM_desc = "Makes the Liberator Mode immobile (and stable?).",
 	aFM_icon = "img/shells/icon_napalm_shell.png",
-	aFM_limited = 2, 
-    aFM_twoClick = true, 
+	--aFM_limited = 2, 
+    aFM_twoClick = false, --true
     
 	innerDamage = 1, 
 	innerEffect = "Fire",
@@ -138,7 +184,7 @@ truelch_LiberatorWeapon = aFM_WeaponTemplate:new{
 }
 
 
-function atlas_Mortar:GetTargetArea(point)
+function truelch_LiberatorWeapon:GetTargetArea(point)
 	local pl = PointList()
 	local currentShell = _G[self:FM_GetMode(point)]
     
@@ -153,39 +199,39 @@ function atlas_Mortar:GetTargetArea(point)
 	return pl
 end
 
-function atlas_Mortar:GetSkillEffect(p1, p2)
+function truelch_LiberatorWeapon:GetSkillEffect(p1, p2)
 	local se = SkillEffect()
-	local currentShell = self:FM_GetMode(p1)
+	local currentMode = self:FM_GetMode(p1)
 	
 	if self:FM_CurrentModeReady(p1) then 
-		_G[currentShell]:fire(p1, p2, se)
-		se:AddSound(_G[currentShell].impactsound)
+		_G[currentMode]:fire(p1, p2, se)
+		--se:AddSound(_G[currentShell].impactsound)
 	end
 
 	return se
 end
 
-function atlas_Mortar:IsTwoClickException(p1,p2)
+function truelch_LiberatorWeapon:IsTwoClickException(p1,p2)
 	return not _G[self:FM_GetMode(p1)].aFM_twoClick 
 end
 
-function atlas_Mortar:GetSecondTargetArea(p1, p2)
-	local currentShell = _G[self:FM_GetMode(p1)]
+function truelch_LiberatorWeapon:GetSecondTargetArea(p1, p2)
+	local currentMode = _G[self:FM_GetMode(p1)]
     local pl = PointList()
     
-	if self:FM_CurrentModeReady(p1) and currentShell.aFM_twoClick then 
-		pl = currentShell:second_targeting(p1, p2)
+	if self:FM_CurrentModeReady(p1) and currentMode.aFM_twoClick then 
+		pl = currentMode:second_targeting(p1, p2)
 	end
     
     return pl 
 end
 
-function atlas_Mortar:GetFinalEffect(p1, p2, p3) 
+function truelch_LiberatorWeapon:GetFinalEffect(p1, p2, p3) 
     local se = SkillEffect()
-	local currentShell = _G[self:FM_GetMode(p1)]
+	local currentMode = _G[self:FM_GetMode(p1)]
 
-	if self:FM_CurrentModeReady(p1) and currentShell.aFM_twoClick then 
-		se = currentShell:second_fire(p1, p2, p3)  
+	if self:FM_CurrentModeReady(p1) and currentMode.aFM_twoClick then 
+		se = currentMode:second_fire(p1, p2, p3)  
 	end
     
     return se 

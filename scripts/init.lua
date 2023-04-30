@@ -36,6 +36,7 @@ function mod:init()
 	require(self.scriptPath .. "/weapons/hellFMW")
 	require(self.scriptPath .. "/weapons/vikingFMW_BackUp") --vikingFMW_BackUp --vikingFMW
 	require(self.scriptPath .. "/weapons/crucioFMW")
+	require(self.scriptPath .. "/weapons/liberatorFMW")
 	require(self.scriptPath .. "/weapons/FMweapon_example")
 	-- <----- FMW
 

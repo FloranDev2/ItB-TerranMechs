@@ -21,11 +21,11 @@ for _, file in ipairs(files) do
 end
 
 local a = ANIMS
-a.liberator_fighter =         a.MechUnit:new{Image = "units/player/liberator_fighter.png",          PosX = -24, PosY = -5 }
-a.liberator_fightera =        a.MechUnit:new{Image = "units/player/liberator_fighter_a.png",        PosX = -24, PosY = -5, NumFrames = 4 }
-a.liberator_fighterw =        a.MechUnit:new{Image = "units/player/liberator_fighter_w.png",        PosX = -24, PosY =  4 }
-a.liberator_fighter_broken =  a.MechUnit:new{Image = "units/player/liberator_fighter_broken.png",   PosX = -24, PosY = -5 }
-a.liberator_fighterw_broken = a.MechUnit:new{Image = "units/player/liberator_fighter_w_broken.png", PosX = -24, PosY =  4 }
+a.liberator_fighter =         a.MechUnit:new{Image = "units/player/liberator_fighter.png",          PosX = -26, PosY = -15 }
+a.liberator_fightera =        a.MechUnit:new{Image = "units/player/liberator_fighter_a.png",        PosX = -26, PosY = -15, NumFrames = 4 }
+a.liberator_fighterw =        a.MechUnit:new{Image = "units/player/liberator_fighter_w.png",        PosX = -26, PosY =  -4 }
+a.liberator_fighter_broken =  a.MechUnit:new{Image = "units/player/liberator_fighter_broken.png",   PosX = -26, PosY = -15 }
+a.liberator_fighterw_broken = a.MechUnit:new{Image = "units/player/liberator_fighter_w_broken.png", PosX = -26, PosY =  -4 }
 a.liberator_fighter_ns =      a.MechIcon:new{Image = "units/player/liberator_fighter_ns.png" }
 
 
@@ -45,11 +45,11 @@ for _, file2 in ipairs(files2) do
 end
 
 local a2 = ANIMS
-a2.liberator_defender =         a2.MechUnit:new{Image = "units/player/liberator_defender.png",          PosX = -24, PosY = -5 }
-a2.liberator_defendera =        a2.MechUnit:new{Image = "units/player/liberator_defender_a.png",        PosX = -24, PosY = -5, NumFrames = 4 }
-a2.liberator_defenderw =        a2.MechUnit:new{Image = "units/player/liberator_defender_w.png",        PosX = -24, PosY = 4 }
-a2.liberator_defender_broken =  a2.MechUnit:new{Image = "units/player/liberator_defender_broken.png",   PosX = -24, PosY = -5 }
-a2.liberator_defenderw_broken = a2.MechUnit:new{Image = "units/player/liberator_defender_w_broken.png", PosX = -24, PosY = 4 }
+a2.liberator_defender =         a2.MechUnit:new{Image = "units/player/liberator_defender.png",          PosX = -26, PosY = -15 }
+a2.liberator_defendera =        a2.MechUnit:new{Image = "units/player/liberator_defender_a.png",        PosX = -26, PosY = -15, NumFrames = 4 }
+a2.liberator_defenderw =        a2.MechUnit:new{Image = "units/player/liberator_defender_w.png",        PosX = -26, PosY =  -4 }
+a2.liberator_defender_broken =  a2.MechUnit:new{Image = "units/player/liberator_defender_broken.png",   PosX = -26, PosY = -15 }
+a2.liberator_defenderw_broken = a2.MechUnit:new{Image = "units/player/liberator_defender_w_broken.png", PosX = -26, PosY =  -4 }
 a2.liberator_defender_ns =      a2.MechIcon:new{Image = "units/player/liberator_defender_ns.png" }
 
 
@@ -61,10 +61,10 @@ LiberatorMech = Pawn:new{
 	MoveSpeed = 2,
 	Massive = true,
 
-	Image = "brute_needle", --"liberator_fighter"
+	Image = "liberator_fighter", --"liberator_fighter" --"brute_needle"
 	ImageOffset = imageOffset,
 	
-	SkillList = { "truelch_liberatorWeapon", "atlas_Mortar" },
+	SkillList = { "truelch_LiberatorWeapon" --[[, "atlas_Mortar"]] },
 
 	SoundLocation = "/mech/prime/punch_mech/",
 	ImpactMaterial = IMPACT_METAL,
