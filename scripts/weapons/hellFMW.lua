@@ -279,7 +279,7 @@ truelch_HellWeapon = aFM_WeaponTemplate:new{
 
 	--Menu stats
 	Rarity = 1,
-	PowerCost = 1,
+	PowerCost = 0, --AE (was 1 before)
 
 	--Upgrades
 	Upgrades = 2,
