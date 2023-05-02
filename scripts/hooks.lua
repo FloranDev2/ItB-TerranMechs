@@ -2,7 +2,7 @@
 --local mod = mod_loader.mods[modApi.currentMod]
 local mod = modApi:getCurrentMod() --same, but better (thx Lemonymous!)
 local scriptPath = mod.scriptPath
-local utils = require(scriptPath .."libs/utils")
+--local utils = require(scriptPath .."libs/utils")
 
 --FMW
 local truelch_terran_fmw = require(scriptPath .. "fmw/FMW") --not needed?
@@ -134,6 +134,20 @@ local function applyModeOnPawn(pawn, weaponIdx)
         pawn:SetPushable(false)
         if pawn:GetType() == "CrucioMech" then
             pawn:SetCustomAnim("crucio_siege")
+        end
+    elseif mode == "truelch_LiberatorMode1" then --------NEW!!!
+        LOG("(apply) Liberator Fighter")
+        pawn:SetMoveSpeed(2)
+        pawn:SetPushable(true)
+        if pawn:GetType() == "LiberatorMech" then
+            pawn:SetCustomAnim("liberator_fighter")
+        end
+    elseif mode == "truelch_LiberatorMode2" then --------NEW!!!
+        LOG("(apply) Liberator Defender")
+        Pawn:SetMoveSpeed(0)
+        pawn:SetPushable(false)
+        if pawn:GetType() == "LiberatorMech" then
+            pawn:SetCustomAnim("liberator_defender")
         end
     end
 end

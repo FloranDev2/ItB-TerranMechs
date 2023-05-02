@@ -10,10 +10,9 @@
 ----------------------------------------------------- Defs
 
 local mod = modApi:getCurrentMod()
---local modApiExt = LApi.library:fetch("modApiExt/modApiExt", nil, "ITB-ModUtils") --Oh it worked apparently
 local scriptPath = mod.scriptPath
-local utils = require(scriptPath .. "libs/utils")
-local difficultyEvents = require(scriptPath .. "libs/difficultyEvents")
+--local utils = require(scriptPath .. "libs/utils")
+--local difficultyEvents = require(scriptPath .. "libs/difficultyEvents")
 local achvExt = require(scriptPath.."libs/achievementExt")
 
 --FMW
@@ -230,6 +229,7 @@ function completeTransformers()
 end
 
 
+--TODO: with substring, I think I can simplify this
 local transformWeapons =
 {
     "truelch_HellWeapon",
@@ -244,6 +244,10 @@ local transformWeapons =
     "truelch_CrucioWeapon_A",
     "truelch_CrucioWeapon_B",
     "truelch_CrucioWeapon_AB",
+    "truelch_LiberatorWeapon",
+    "truelch_LiberatorWeapon_A",
+    "truelch_LiberatorWeapon_B",
+    "truelch_LiberatorWeapon_AB",
 }
 
 local function isTerranMechWeapon(fmwId)

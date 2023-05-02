@@ -3,7 +3,14 @@ local path = mod_loader.mods[modApi.currentMod].scriptPath
 local resources = mod_loader.mods[modApi.currentMod].resourcePath
 
 local fmw = require(path.."fmw/api")
---local weaponPreview = require(path .. "libs/weaponPreview")
+--require(path .. "LApi/LApi")
+
+--local globals = LApi.library:fetch("globals") --25/04/2023
+--local weaponPreview = LApi.library:fetch("weaponPreview") --25/04/2023 was that
+local weaponPreview = require(path .. "libs/weaponPreview") --but since LApi doesn't exist anymore, let's just use that
+--LOG("\n\n\n weaponPreview: " .. tostring(weaponPreview) .. "\n\n\n")
+
+--local globalPawnIndex = globals:new() --25/04/2023
 
 --Icons
 modApi:appendAsset("img/weapons/crucio_weapons.png", resources .."img/weapons/crucio_weapons.png")
@@ -13,6 +20,24 @@ modApi:appendAsset("img/modes/icon_crucio_siege.png", resources .. "img/modes/ic
 
 ----------------------------------------------------- Utility functions
 
+--[[
+local additionalEnemyPawns =
+{
+	"Dam_Pawn"
+}
+
+local function isEnemyPawn(pawn)
+	if pawn:GetTeam() == TEAM_ENEMY then
+		return true
+	end
+	for _,v in pairs(additionalEnemyPawns) do
+		if v == pawn:GetType() then
+			return true
+		end
+	end
+	return false
+end
+]]
 
 ----------------------------------------------------- Dummy wall (stealing it from you Lemonymous ^^)
 truelch_Wall = Pawn:new{
@@ -116,6 +141,12 @@ function truelch_CrucioMode2:targeting(point)
 end
 
 
+--[[
+Imported some Lemonymous' vortex logic in here
+Current issue: if the main target would die from main damage,
+a sole outer unit can be pushed into the center tile without taking damage.
+But it displays that it will take damage from push.
+]]
 function truelch_CrucioMode2:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, siegeSecondaryDmg, friendlyFire)
 	---- INIT VARS ----
 
@@ -176,6 +207,22 @@ function truelch_CrucioMode2:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, siegeSe
 	--Original version: add something in the center only if needed
 	local collisionInCenter = #pushedTargets > 1 and Board:IsBlocked(p2, PATH_FLYER) == false
 
+	--LOG("[TRUELCH] is center blocked: " .. tostring(Board:IsBlocked(p2, PATH_FLYER)))
+
+	--To manage the case where the central unit dies (and there's no collision)
+	--nil...
+	--local collisionInCenter = #pushedTargets > 1 or (#pushedTargets > 0 and Board:IsBlocked(p2, PATH_FLYER) == true)
+
+	--LOG("\n-------------- pushed targets: " .. tostring(#pushedTargets) .. ", is blocked: " .. tostring(Board:IsBlocked(p2, PATH_FLYER)) .. "\n")
+
+	--Doesn't work and is dangerous: when you spawn a Pawn where a Pawn stands, it kills the later Pawn apparently
+	--local collisionInCenter = #pushedTargets > 0 and Board:IsBlocked(p2, PATH_FLYER) == true
+	--collisionInCenter = collisionInCenter or #pushedTargets > 1
+
+	--LOG("\n-------------- collisionInCenter: " .. tostring(collisionInCenter) .. "\n")
+
+	--add events for pushing units
+
 	local aoeDmgReset = siegeSecondaryDmg --fix
 
 	for dir = DIR_START, DIR_END do
@@ -210,7 +257,51 @@ function truelch_CrucioMode2:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, siegeSe
 		ret:AddDamage(push_event)
 	end
 
-	--Removed pull effect
+	if self.pull then
+		if collisionInCenter then
+			--LOG("[TRUELCH] -----> OK ")
+			--mark star in center
+			--collide_event.sImageMark = "combat/arrow_hit.png" --Problem: is not centered...
+
+			--None of the following display anything
+			--collide_event.sImageMark = "combat/truelch_arrow_hit.png"
+			--collide_event.sImageMark = "img/combat/truelch_arrow_hit.png"
+			--collide_event.sImageMark = "truelch_arrow_hit.png"
+			
+			ret:AddDamage(collide_event)
+
+			--apply extra collision damage
+			for _, loc in ipairs(pushedTargets) do
+				local extra_damage_event = SpaceDamage()
+				extra_damage_event.loc = loc
+				extra_damage_event.iPush = 230 -- hack to display hp loss
+
+				weaponPreview:AddDamage(extra_damage_event)
+			end
+
+			--add events for add/rem invisible dummy unit
+			pre_event = ret.effect:index(pre_event_index)
+
+			--crucioFMW.lua:285: bad argument #2 to 'format' (string expected, got nil)
+			pre_event.sScript = string.format([[
+				local pawn = PAWN_FACTORY:CreatePawn("truelch_Wall")
+				globals[%s] = pawn:GetId()
+				pawn:SetInvisible(true)
+				Board:AddPawn(pawn, %s)
+			]], globalPawnIndex, p2:GetString())
+
+			post_event.sScript = string.format([[
+				local pawnId = globals[%s] 
+				local pawn = Board:GetPawn(pawnId)
+				if pawn then
+					Board:RemovePawn(pawn)
+				end
+			]], globalPawnIndex)
+
+			ret:AddDelay(0.4)
+			ret:AddDamage(post_event)
+		end		
+	end
 
 	---- AREA OF EFFECT ----
 end

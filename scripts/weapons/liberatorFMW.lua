@@ -1,29 +1,15 @@
 ----------------------------------------------------- Imports
-
 local this = {}
 local path = mod_loader.mods[modApi.currentMod].scriptPath
 local resources = mod_loader.mods[modApi.currentMod].resourcePath
 
---local fmw = require(path.."fmw/api") 
-
 
 ----------------------------------------------------- Icons
---Old (viking)
-modApi:appendAsset("img/weapons/viking_weapons.png", resources .."img/weapons/viking_weapons.png")
-modApi:appendAsset("img/modes/icon_viking_fighter.png", resources .. "img/modes/icon_viking_fighter.png")
-modApi:appendAsset("img/modes/icon_viking_assault.png", resources .. "img/modes/icon_viking_assault.png")
-modApi:appendAsset("img/effects/shotup_torpedo_normal.png",  resources .. "img/effects/shotup_torpedo_normal.png")
-modApi:appendAsset("img/effects/shotup_torpedo_phobos.png",  resources .. "img/effects/shotup_torpedo_phobos.png")
-
-
---New (liberator)
 modApi:appendAsset("img/weapons/liberator_weapons.png", resources .."img/weapons/liberator_weapons.png")
 modApi:appendAsset("img/modes/icon_liberator_fighter.png", resources .. "img/modes/icon_liberator_fighter.png")
 modApi:appendAsset("img/modes/icon_liberator_defender.png", resources .. "img/modes/icon_liberator_defender.png")
 
-
 ----------------------------------------------------- Custom functions
-
 function tableContains(table, value)
   for i = 1, #testTable do
     if (testTable[i] == value) then
@@ -69,12 +55,51 @@ truelch_LiberatorMode1 = {
 	UpShot = "effects/shotup_tribomb_missile.png",
 }
 
-function truelch_LiberatorMode1:second_targeting(p1, p2) 
-    return Ranged_TC_BounceShot.GetSecondTargetArea(Ranged_TC_BounceShot, p1, p2)
+function truelch_LiberatorMode1:second_targeting(p1, p2)
+	local ret = PointList()
+
+	local diff = p1 - p2
+
+	if math.abs(diff.x) > math.abs(diff.y) then
+		ret:push_back(Point(p2.x, p1.y + diff.y))
+	elseif math.abs(diff.x) < math.abs(diff.y) then
+		ret:push_back(Point(p1.x + diff.x, p2.y))
+	else
+		ret:push_back(Point(p2.x, p1.y + diff.y))
+		ret:push_back(Point(p1.x + diff.x, p2.y))
+	end
+
+	return ret
 end
 
 function truelch_LiberatorMode1:second_fire(p1, p2, p3)
-    return Ranged_TC_BounceShot.GetFinalEffect(Ranged_TC_BounceShot, p1, p2, p3)
+	local se = SkillEffect()
+
+	local x = (p2.x + p3.x) / 2
+	local y = (p2.y + p3.y) / 2
+	local mid = Point(x, y)
+	local dir = GetDirection(mid - p1)
+
+	if p2 ~= p3 then
+		--Split attack
+		--TODO: take inspiration of tosx' Ecl_Ranged_Orion weapon
+		local sd2 = SpaceDamage(p2, self.Damage, dir) --Has a delay
+		--local sd2 = SpaceDamage(p2, self.Damage, dir, NO_DELAY) --doesn't work
+		--local sd2 = SpaceDamage(p2, self.Damage, NO_DELAY, dir) --doesn't work
+		sd2.sSound = self.LaunchSound
+		se:AddArtillery(sd2, self.UpShot)
+
+		local sd3 = SpaceDamage(p3, self.Damage, dir)
+		sd3.sSound = self.LaunchSound
+		se:AddArtillery(sd3, self.UpShot)
+	else
+		--Concentred attack
+		local sd = SpaceDamage(p2, 2 * self.Damage, dir)
+		sd.sSound = self.LaunchSound
+		se:AddArtillery(sd, self.UpShot)
+	end
+
+	return se
 end
 
 CreateClass(truelch_LiberatorMode1)
@@ -146,6 +171,8 @@ truelch_LiberatorWeapon = aFM_WeaponTemplate:new{
 	Description = "TMP.",
 	Class = "Brute",
 
+	TwoClick = true,
+
 	--Menu stats
 	Rarity = 1,
 	PowerCost = 0,
@@ -180,10 +207,46 @@ end
 function truelch_LiberatorWeapon:GetSkillEffect(p1, p2)
 	local se = SkillEffect()
 	local currentMode = self:FM_GetMode(p1)	
+
 	if self:FM_CurrentModeReady(p1) then 
 		_G[currentMode]:fire(p1, p2, se)
+		--se:AddSound(_G[currentShell].impactsound)
 	end
+
 	return se
+end
+
+function truelch_LiberatorWeapon:IsTwoClickException(p1,p2)
+	return not _G[self:FM_GetMode(p1)].aFM_twoClick 
+end
+
+function truelch_LiberatorWeapon:GetSecondTargetArea(p1, p2)
+	--LOG("----------------- truelch_LiberatorWeapon:GetSecondTargetArea")
+	local currentMode = _G[self:FM_GetMode(p1)]
+    local pl = PointList()
+    
+	if self:FM_CurrentModeReady(p1) and currentMode.aFM_twoClick then
+		--LOG("----------------- OK :)")
+		pl = currentMode:second_targeting(p1, p2)
+	else
+		--LOG("----------------- NOT ok :(")
+	end
+    
+    return pl 
+end
+
+function truelch_LiberatorWeapon:GetFinalEffect(p1, p2, p3) 
+    local se = SkillEffect()
+	local currentMode = _G[self:FM_GetMode(p1)]
+
+	--LOG("truelch_LiberatorWeapon:GetFinalEffect")
+
+	if self:FM_CurrentModeReady(p1) and currentMode.aFM_twoClick then
+		--LOG(" -----------> ok") 
+		se = currentMode:second_fire(p1, p2, p3)  
+	end
+    
+    return se 
 end
 
 --Mode1: Fighter, Mode2: Defender

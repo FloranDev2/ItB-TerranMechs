@@ -65,7 +65,7 @@ LiberatorMech = Pawn:new{
 	Image = "liberator_fighter",
 	ImageOffset = imageOffset,
 	
-	SkillList = { "truelch_LiberatorWeapon" },
+	SkillList = { "truelch_LiberatorWeapon", "Ranged_TC_BounceShot" },
 
 	SoundLocation = "/mech/prime/punch_mech/",
 	ImpactMaterial = IMPACT_METAL,

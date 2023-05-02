@@ -384,7 +384,7 @@ truelch_VikingWeapon = aFM_WeaponTemplate:new{
 
 	--Menu stats
 	Rarity = 1,	
-	PowerCost = 1,
+	PowerCost = 0, --AE
 
 	--Upgrades
 	Upgrades = 2,
