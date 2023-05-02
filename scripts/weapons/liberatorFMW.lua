@@ -57,13 +57,25 @@ truelch_LiberatorMode1 = {
 	aFM_name = "Fighter Mode",
 	aFM_desc = "Can move normally.",
 	aFM_icon = "img/modes/icon_liberator_fighter.png",
+	aFM_twoClick = true,
+
 	--Custom
+	Damage = 1,
+
 	--Art
 	impactsound = "/impact/generic/explosion_large",
 	LaunchSound = "/weapons/rocket_launcher",
 	Explo = "explopush1_",
 	UpShot = "effects/shotup_tribomb_missile.png",
 }
+
+function truelch_LiberatorMode1:second_targeting(p1, p2) 
+    return Ranged_TC_BounceShot.GetSecondTargetArea(Ranged_TC_BounceShot, p1, p2)
+end
+
+function truelch_LiberatorMode1:second_fire(p1, p2, p3)
+    return Ranged_TC_BounceShot.GetFinalEffect(Ranged_TC_BounceShot, p1, p2, p3)
+end
 
 CreateClass(truelch_LiberatorMode1)
 
@@ -72,7 +84,7 @@ function truelch_LiberatorMode1:targeting(point)
 	for j = -2, 2 do
 		for i = -2, 2 do
 			local curr = point + Point(i, j)
-			if isAuthorizedPoint(curr) then
+			if isAuthorizedPoint(Point(i, j)) then
 				points[#points+1] = curr
 			end
 		end
@@ -83,12 +95,9 @@ end
 function truelch_LiberatorMode1:fire(p1, p2, ret)
 	local dir = GetDirection(p2 - p1)
 	local targetPawn = Board:GetPawn(p2)
-	local dmg = 0
-
-	--Can also be triggered by other obstacles like Mountains or Buildings
-	local spaceDamage = SpaceDamage(p2, dmg, dir)
-	spaceDamage.sSound = self.LaunchSound
-
+	local spaceDamage = SpaceDamage(p2, 0)
+	--local spaceDamage = SpaceDamage(p2, self.Damage, dir)
+	--spaceDamage.sSound = self.LaunchSound
 	ret:AddArtillery(spaceDamage, self.UpShot)
 end
 
@@ -98,7 +107,8 @@ end
 truelch_LiberatorMode2 = truelch_LiberatorMode1:new{
 	aFM_name = "Defender Mode",
 	aFM_desc = "TMP.",
-	aFM_icon = "img/modes/icon_liberator_defender.png",	
+	aFM_icon = "img/modes/icon_liberator_defender.png",
+	aFM_twoClick = false,
 	--Art
 	impactsound = "/impact/generic/explosion_large",
 	LaunchSound = "/general/combat/explode_small",
@@ -177,10 +187,10 @@ function truelch_LiberatorWeapon:GetSkillEffect(p1, p2)
 end
 
 --Mode1: Fighter, Mode2: Defender
---[[
 function truelch_LiberatorWeapon:FM_OnModeSwitch(p)
 	if self:FM_GetMode(p) == "truelch_LiberatorMode1" then
-		Pawn:SetMoveSpeed(0) --See Crucio
+		Pawn:SetMoveSpeed(0)
+		Pawn:SetPushable(false) --test
         if Pawn:GetType() == "LiberatorMech" then
             Pawn:SetCustomAnim("liberator_defender")
         end
@@ -199,6 +209,5 @@ function truelch_LiberatorWeapon:FM_OnModeSwitch(p)
 		Board:AddEffect(effect)
 	end
 end
-]]
 
 return this
