@@ -10,6 +10,38 @@ modApi:appendAsset("img/modes/icon_liberator_fighter.png", resources .. "img/mod
 modApi:appendAsset("img/modes/icon_liberator_defender.png", resources .. "img/modes/icon_liberator_defender.png")
 
 
+----------------------------------------------------- Utility / local functions
+local function isGame()
+	return true
+		and Game ~= nil
+		and GAME ~= nil
+end
+
+local function isMission()
+    local mission = GetCurrentMission()
+
+    return true
+        and isGame()
+        and mission ~= nil
+        and mission ~= Mission_Test
+end
+
+local function missionData()
+    local mission = GetCurrentMission()
+
+    --Test
+    if mission == nil then
+    	return nil
+    end
+
+    if mission.truelch_TerranMechs == nil then
+        mission.truelch_TerranMechs = {}
+    end
+
+    return mission.truelch_TerranMechs
+end
+
+
 ----------------------------------------------------- Custom functions
 function tableContains(table, value)
   for i = 1, #testTable do
@@ -43,10 +75,10 @@ end
 -- - overlapping areas (add but also remove!!)
 -- - when a liberator ends its overwatch, we don't want to remove points 
 --   in a zone overlapped by another defending Liberator
-local defendedArea
+local defendedArea --> should be a mission data variable
 
---Init list
-local function initDefendedArea()
+--Reset (init or clear)
+local function resetDefendedArea()
 	defendedArea[0] = {}
 	defendedArea[1] = {}
 	defendedArea[2] = {}
@@ -67,10 +99,6 @@ local function clearDefendedArea()
 	defendedArea[2] = {}
 end
 
-local function debugAreas()
-	
-end
-
 --Hm i need to check every mech weapon then (upgrade and stuff)
 local function isInDefendedArea(point)
 	for i = 0, 2 do
@@ -81,18 +109,26 @@ local function isInDefendedArea(point)
 	end
 end
 
-local onVekMoveEnded = function(mission, pawn, startLoc, endLoc)
+---Hooks
+local HOOK_onVekMoveEnd = function(mission, pawn, startLoc, endLoc)
 	LOG(pawn:GetMechName() .. " has finished moving from " .. startLoc:GetString() .. " to " .. endLoc:GetString())
 	if isInDefendedArea(endLoc) then
 		LOG(" -> is in defended area!")
 	end
 end
 
---modApiExt:addVekMoveEndHook(onVekMoveEnded)
-modapiext:addVekMoveEndHook(onVekMoveEnded)
+local HOOK_onMissionStart = function(mission)
+	LOG("Mission started!")
 
+end
 
+----------------------------------------------------- Events
+local function EVENT_onModsLoaded()
+	modapiext:addVekMoveEndHook(HOOK_onVekMoveEnd)
+	modApi:addMissionStartHook(HOOK_onMissionStart)
+end
 
+modApi.events.onModsLoaded:subscribe(EVENT_onModsLoaded)
 
 
 ----------------------------------------------------- Mode 1: Fighter
@@ -137,21 +173,16 @@ function truelch_LiberatorMode1:second_fire(p1, p2, p3)
 	local mid = Point(x, y)
 	local dir = GetDirection(mid - p1)
 
-	--Wait what: https://discord.com/channels/417639520507527189/418142041189646336/1103243354772361297
 	if p2 ~= p3 then
 		--Split attack
-		--TODO: take inspiration of tosx' Ecl_Ranged_Orion weapon
-		local sd2 = SpaceDamage(p2, self.Damage, dir) --Has a delay
-		--local sd2 = SpaceDamage(p2, self.Damage, dir, NO_DELAY) --doesn't work
-		--local sd2 = SpaceDamage(p2, self.Damage, NO_DELAY, dir) --doesn't work
+		local sd2 = SpaceDamage(p2, self.Damage, dir)
 		sd2.sSound = self.LaunchSound
-		--se:AddArtillery(sd2, self.UpShot)
-		se:AddArtillery(sd2, self.UpShot, NO_DELAY) --test
+		se:AddArtillery(sd2, self.UpShot, NO_DELAY)
 
 		local sd3 = SpaceDamage(p3, self.Damage, dir)
 		sd3.sSound = self.LaunchSound
 		--se:AddArtillery(sd3, self.UpShot)
-		se:AddArtillery(sd3, self.UpShot, NO_DELAY) --test
+		se:AddArtillery(sd3, self.UpShot, NO_DELAY) --not needed?
 	else
 		--Concentred attack
 		local sd = SpaceDamage(p2, 2 * self.Damage, dir)
@@ -181,8 +212,6 @@ function truelch_LiberatorMode1:fire(p1, p2, ret)
 	local dir = GetDirection(p2 - p1)
 	local targetPawn = Board:GetPawn(p2)
 	local spaceDamage = SpaceDamage(p2, 0)
-	--local spaceDamage = SpaceDamage(p2, self.Damage, dir)
-	--spaceDamage.sSound = self.LaunchSound
 	ret:AddArtillery(spaceDamage, self.UpShot)
 end
 
@@ -192,10 +221,11 @@ truelch_LiberatorMode2 = truelch_LiberatorMode1:new{
 	aFM_name = "Defender Mode",
 	aFM_desc = "TMP.",
 	aFM_icon = "img/modes/icon_liberator_defender.png",
-	aFM_twoClick = false,
+	aFM_twoClick = true, --false
 	--Art
 	impactsound = "/impact/generic/explosion_large",
 	LaunchSound = "/general/combat/explode_small",
+	UpShot = "effects/shotup_tribomb_missile.png",
 	--Custom art
 	UpShot = "",
 }
@@ -213,17 +243,30 @@ end
 
 
 function truelch_LiberatorMode2:fire(p1, p2, ret)
-	local direction = GetDirection(p2 - p1)
-	local target
-	local spaceDamage
-	local currPawn
+	local spaceDamage = SpaceDamage(p2, 0)
+	ret:AddDamage(spaceDamage)
+end
 
-	--TODO
+function truelch_LiberatorMode2:second_targeting(p1, p2)
+	local ret = PointList()
+	for j = -1, 1 do
+		for i = -1, 1 do
+			ret:push_back(p2 + Point(i, j))
+		end
+	end
+	return ret
+end
+
+function truelch_LiberatorMode2:second_fire(p1, p2, p3)
+	local se = SkillEffect()
+	local sd = SpaceDamage(p3, 2) --[[self.Damage]]
+	sd.sSound = self.LaunchSound
+	se:AddArtillery(sd, self.UpShot)
+	return se
 end
 
 
 ----------------------------------------------------- Skill
-
 truelch_LiberatorWeapon = aFM_WeaponTemplate:new{
 	--Infos
 	Name = "Liberator Weapons",
@@ -280,31 +323,20 @@ function truelch_LiberatorWeapon:IsTwoClickException(p1,p2)
 end
 
 function truelch_LiberatorWeapon:GetSecondTargetArea(p1, p2)
-	--LOG("----------------- truelch_LiberatorWeapon:GetSecondTargetArea")
 	local currentMode = _G[self:FM_GetMode(p1)]
-    local pl = PointList()
-    
+    local pl = PointList()    
 	if self:FM_CurrentModeReady(p1) and currentMode.aFM_twoClick then
-		--LOG("----------------- OK :)")
 		pl = currentMode:second_targeting(p1, p2)
-	else
-		--LOG("----------------- NOT ok :(")
 	end
-    
     return pl 
 end
 
 function truelch_LiberatorWeapon:GetFinalEffect(p1, p2, p3) 
     local se = SkillEffect()
 	local currentMode = _G[self:FM_GetMode(p1)]
-
-	--LOG("truelch_LiberatorWeapon:GetFinalEffect")
-
 	if self:FM_CurrentModeReady(p1) and currentMode.aFM_twoClick then
-		--LOG(" -----------> ok") 
 		se = currentMode:second_fire(p1, p2, p3)  
-	end
-    
+	end    
     return se 
 end
 

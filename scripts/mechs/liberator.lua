@@ -65,12 +65,10 @@ LiberatorMech = Pawn:new{
 	Image = "liberator_fighter",
 	ImageOffset = imageOffset,
 	
-	SkillList = { "truelch_LiberatorWeapon", "Ranged_TC_BounceShot" },
+	SkillList = { "truelch_LiberatorWeapon" },
 
 	SoundLocation = "/mech/prime/punch_mech/",
 	ImpactMaterial = IMPACT_METAL,
 	
 	DefaultTeam = TEAM_PLAYER,
-
-	Tank = true, --Tonks achievement of the WotP squad!!
 }

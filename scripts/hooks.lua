@@ -37,25 +37,25 @@ end
 local function isGameData()
     return true
         and GAME ~= nil
-        and GAME.terran_mechs ~= nil
+        and GAME.truelch_TerranMechs ~= nil --GAME.terran_mechs ~= nil
 end
 
 local function gameData()
-    if GAME.terran_mechs == nil then
-        GAME.terran_mechs = {}
+    if GAME.truelch_TerranMechs == nil then --if GAME.terran_mechs == nil then
+        GAME.truelch_TerranMechs = {} --GAME.terran_mechs = {}
     end
 
-    return GAME.terran_mechs
+    return GAME.truelch_TerranMechs --return GAME.terran_mechs
 end
 
 local function missionData()
     local mission = GetCurrentMission()
 
-    if mission.terran_mechs == nil then
-        mission.terran_mechs = {}
+    if mission.truelch_TerranMechs == nil then --if mission.terran_mechs == nil then
+        mission.truelch_TerranMechs = {} --mission.terran_mechs = {}
     end
 
-    return mission.terran_mechs
+    return mission.truelch_TerranMechs --return mission.terran_mechs
 end
 
 
@@ -68,6 +68,8 @@ local function applyModeOnPawn(pawn, weaponIdx)
     if fmw == nil then
         return
     end
+
+    LOG("(before mode)")
 
     local mode = fmw:FM_GetMode(p) --works!
 

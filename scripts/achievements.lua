@@ -65,14 +65,9 @@ local function isRealMission()
 		and Board:IsGameBoard()
 end
 
-local function isNotRealMission()
-	return not isRealMission()
-end
-
 local function isGame()
 	return Game ~= nil
 end
-
 
 local function isSquad()
 	return true
