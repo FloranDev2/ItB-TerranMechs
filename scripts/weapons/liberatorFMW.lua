@@ -9,6 +9,8 @@ modApi:appendAsset("img/weapons/liberator_weapons.png", resources .."img/weapons
 modApi:appendAsset("img/modes/icon_liberator_fighter.png", resources .. "img/modes/icon_liberator_fighter.png")
 modApi:appendAsset("img/modes/icon_liberator_defender.png", resources .. "img/modes/icon_liberator_defender.png")
 
+modApi:appendAsset("img/combat/icons/truelch_defended.png", resources.."img/combat/icons/truelch_defended.png")
+	Location["combat/icons/truelch_defended.png"] = Point(-15, 6)
 
 ----------------------------------------------------- Utility / local functions
 local function isGame()
@@ -129,6 +131,16 @@ local function EVENT_onModsLoaded()
 end
 
 modApi.events.onModsLoaded:subscribe(EVENT_onModsLoaded)
+
+modApi.events.onMissionUpdate:subscribe(function(mission)
+	local allpawns = extract_table(Board:GetPawns(TEAM_ENEMY))
+	for i, id in pairs(allpawns) do
+		local point = Board:GetPawnSpace(id)
+		local pawn = Board:GetPawn(point)
+		Board:AddAnimation(point, "truelch_defended", 0.08)
+		LOG("point: " .. point:GetString())
+	end
+end)
 
 
 ----------------------------------------------------- Mode 1: Fighter
