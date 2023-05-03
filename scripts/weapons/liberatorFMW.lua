@@ -9,6 +9,7 @@ modApi:appendAsset("img/weapons/liberator_weapons.png", resources .."img/weapons
 modApi:appendAsset("img/modes/icon_liberator_fighter.png", resources .. "img/modes/icon_liberator_fighter.png")
 modApi:appendAsset("img/modes/icon_liberator_defender.png", resources .. "img/modes/icon_liberator_defender.png")
 
+
 ----------------------------------------------------- Custom functions
 function tableContains(table, value)
   for i = 1, #testTable do
@@ -36,9 +37,65 @@ function isAuthorizedPoint(point)
 	return true
 end
 
+----------------------------------------------------- Hooks
+-- Note:
+-- - have MULTIPLE Liberators
+-- - overlapping areas (add but also remove!!)
+-- - when a liberator ends its overwatch, we don't want to remove points 
+--   in a zone overlapped by another defending Liberator
+local defendedArea
+
+--Init list
+local function initDefendedArea()
+	defendedArea[0] = {}
+	defendedArea[1] = {}
+	defendedArea[2] = {}
+end
+
+--index should be between 0 and 2 included
+local function addPointToDefArea(index, point)
+	if not tableContains(defendedArea[index]) then
+		table.insert(defendedArea[index], point)
+	end
+end
+
+--Must be called at the start of every mission
+--Same as init. Maybe cut this one
+local function clearDefendedArea()
+	defendedArea[0] = {}
+	defendedArea[1] = {}
+	defendedArea[2] = {}
+end
+
+local function debugAreas()
+	
+end
+
+--Hm i need to check every mech weapon then (upgrade and stuff)
+local function isInDefendedArea(point)
+	for i = 0, 2 do
+		--Check the weapon
+		for j = 1, 2 do --I think this was the weapon indexes?
+
+		end
+	end
+end
+
+local onVekMoveEnded = function(mission, pawn, startLoc, endLoc)
+	LOG(pawn:GetMechName() .. " has finished moving from " .. startLoc:GetString() .. " to " .. endLoc:GetString())
+	if isInDefendedArea(endLoc) then
+		LOG(" -> is in defended area!")
+	end
+end
+
+--modApiExt:addVekMoveEndHook(onVekMoveEnded)
+modapiext:addVekMoveEndHook(onVekMoveEnded)
+
+
+
+
 
 ----------------------------------------------------- Mode 1: Fighter
-
 truelch_LiberatorMode1 = {
 	aFM_name = "Fighter Mode",
 	aFM_desc = "Can move normally.",
@@ -80,6 +137,7 @@ function truelch_LiberatorMode1:second_fire(p1, p2, p3)
 	local mid = Point(x, y)
 	local dir = GetDirection(mid - p1)
 
+	--Wait what: https://discord.com/channels/417639520507527189/418142041189646336/1103243354772361297
 	if p2 ~= p3 then
 		--Split attack
 		--TODO: take inspiration of tosx' Ecl_Ranged_Orion weapon
@@ -87,11 +145,13 @@ function truelch_LiberatorMode1:second_fire(p1, p2, p3)
 		--local sd2 = SpaceDamage(p2, self.Damage, dir, NO_DELAY) --doesn't work
 		--local sd2 = SpaceDamage(p2, self.Damage, NO_DELAY, dir) --doesn't work
 		sd2.sSound = self.LaunchSound
-		se:AddArtillery(sd2, self.UpShot)
+		--se:AddArtillery(sd2, self.UpShot)
+		se:AddArtillery(sd2, self.UpShot, NO_DELAY) --test
 
 		local sd3 = SpaceDamage(p3, self.Damage, dir)
 		sd3.sSound = self.LaunchSound
-		se:AddArtillery(sd3, self.UpShot)
+		--se:AddArtillery(sd3, self.UpShot)
+		se:AddArtillery(sd3, self.UpShot, NO_DELAY) --test
 	else
 		--Concentred attack
 		local sd = SpaceDamage(p2, 2 * self.Damage, dir)
@@ -128,7 +188,6 @@ end
 
 
 ----------------------------------------------------- Mode 2: Defender
-
 truelch_LiberatorMode2 = truelch_LiberatorMode1:new{
 	aFM_name = "Defender Mode",
 	aFM_desc = "TMP.",
