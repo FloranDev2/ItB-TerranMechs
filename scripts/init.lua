@@ -23,6 +23,7 @@ function mod:init()
 	
 	--Libs
 	require(self.scriptPath .. "libs/artilleryArc")
+	require(self.scriptPath .. "libs/customAnim")
 
 	-- FMW ----->
 	--modapi already defined
