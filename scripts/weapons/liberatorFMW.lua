@@ -9,8 +9,8 @@ local truelch_terran_fmwApi = require(scriptPath .. "fmw/api") --that's what I n
 
 ----------------------------------------------------- Test custom anim
 --local a = ANIMS
-local customAnim = require(scriptPath .."libs/customAnim")
-modApi:appendAsset("img/effects/truelch_defended.png", resources.."img/effects/truelch_defended.png")
+local customAnim = require(scriptPath .. "libs/customAnim")
+modApi:appendAsset("img/effects/truelch_defended.png", resources .. "img/effects/truelch_defended.png")
 
 ANIMS.truelch_defended = Animation:new{
 	Image = "effects/truelch_defended.png",
@@ -22,15 +22,10 @@ ANIMS.truelch_defended = Animation:new{
 }
 
 ----------------------------------------------------- Icons
-modApi:appendAsset("img/weapons/liberator_weapons.png", resources .."img/weapons/liberator_weapons.png")
-modApi:appendAsset("img/modes/icon_liberator_fighter.png", resources .. "img/modes/icon_liberator_fighter.png")
+modApi:appendAsset("img/weapons/liberator_weapons.png",     resources .. "img/weapons/liberator_weapons.png")
+modApi:appendAsset("img/modes/icon_liberator_fighter.png",  resources .. "img/modes/icon_liberator_fighter.png")
 modApi:appendAsset("img/modes/icon_liberator_defender.png", resources .. "img/modes/icon_liberator_defender.png")
 
---Doesn't work:
---[[
-modApi:appendAsset("img/combat/icons/truelch_defended.png", resources.."img/combat/icons/truelch_defended.png")
-	Location["combat/icons/truelch_defended.png"] = Point(-15, 6)
-]]
 
 ----------------------------------------------------- Utility / local functions
 local function isGame()
@@ -139,9 +134,15 @@ end
 
 --Hm i need to check every mech weapon then (upgrade and stuff)
 local function isInDefendedArea(point)
+	LOG("isInDefendedArea(point: " .. point:GetString() .. ")")
 	for i = 0, 2 do
-		if missionData().defendedArea[i] == point then
-			return true
+		LOG("i: " .. tostring(i))
+		for _, p in ipairs(missionData().defendedArea[i]) do
+			LOG("p: " .. p:GetString())
+			if p == point then
+				LOG("---> TRUE!")
+				return true
+			end
 		end
 	end
 	return false
@@ -157,6 +158,14 @@ local function computeHaloAoE(ret, point)
 			ret:AddDamage(haloDmg)
 		end
 	end
+end
+
+local function defendShot(point)
+	LOG("defendShot(point: " .. point:GetString() .. ")")
+	local se = SkillEffect()
+	local sd = SpaceDamage(point, 2)
+	se:AddArtillery(sd, "effects/shotup_tribomb_missile.png")
+	Board:AddEffect(se)
 end
 
 --123456789012345678901
@@ -193,6 +202,7 @@ local HOOK_onVekMoveEnd = function(mission, pawn, startLoc, endLoc)
 	if isInDefendedArea(endLoc) then
 		LOG(" -> is in defended area!")
 		Board:AddAlert(endLoc, "PIEW!")
+		defendShot(endLoc)
 	end
 end
 
@@ -288,6 +298,48 @@ truelch_LiberatorMode1 = {
 	UpShot = "effects/shotup_tribomb_missile.png",
 }
 
+CreateClass(truelch_LiberatorMode1)
+
+function truelch_LiberatorMode1:targeting(point, advBallistics)
+	local points = {}
+	local range = 2
+	if advBallistics then
+		range = 3
+	end
+	for j = -range, range do
+		for i = -range, range do
+			local curr = point + Point(i, j)
+			if isAuthorizedOffset(Point(i, j)) then
+				points[#points+1] = curr
+			end
+		end
+	end
+	return points
+end
+
+function truelch_LiberatorMode1:isTCExc(p1, p2)
+	if p1.x == p2.x or p1.y == p2.y then
+		return true
+	end
+	return false
+end
+
+function truelch_LiberatorMode1:fire(p1, p2, ret, haloAmmo)	
+	if p1.x == p2.x or p1.y == p2.y then
+		--Concentrated attack (TC exception)
+		local spaceDamage = SpaceDamage(p2, self.ConcentratedDmg, GetDirection(p2 - p1))
+		ret:AddArtillery(spaceDamage, self.UpShot)
+	else
+		--Split attack (will need a TC)
+		local spaceDamage = SpaceDamage(p2, self.SplitDmg)
+		ret:AddArtillery(spaceDamage, self.UpShot)
+	end
+
+	if haloAmmo then
+		computeHaloAoE(ret, p2)
+	end
+end
+
 function truelch_LiberatorMode1:second_targeting(p1, p2)
 	local ret = PointList()
 
@@ -345,49 +397,13 @@ function truelch_LiberatorMode1:second_fire(p1, p2, p3, haloAmmo)
 	return se
 end
 
-CreateClass(truelch_LiberatorMode1)
-
-function truelch_LiberatorMode1:targeting(point, advBallistics)
-	local points = {}
-	local range = 2
-	if advBallistics then
-		range = 3
-	end
-	for j = -range, range do
-		for i = -range, range do
-			local curr = point + Point(i, j)
-			if isAuthorizedOffset(Point(i, j)) then
-				points[#points+1] = curr
-			end
-		end
-	end
-	return points
-end
-
-function truelch_LiberatorMode1:fire(p1, p2, ret, haloAmmo)
-	local dir = GetDirection(p2 - p1)
-	local targetPawn = Board:GetPawn(p2)
-
-	local dmg = self.SplitDmg
-	if p1.x == p2.x or p1.y == p2.y then
-		dmg = self.ConcentratedDmg
-	end
-
-	local spaceDamage = SpaceDamage(p2, dmg)
-	ret:AddArtillery(spaceDamage, self.UpShot)
-
-	if haloAmmo then
-		computeHaloAoE(ret, p2)
-	end
-end
-
 
 ----------------------------------------------------- Mode 2: Defender
 truelch_LiberatorMode2 = truelch_LiberatorMode1:new{
 	aFM_name = "Defender Mode",
 	aFM_desc = "TMP.",
 	aFM_icon = "img/modes/icon_liberator_defender.png",
-	aFM_twoClick = true, --false
+	aFM_twoClick = true,
 
 	--Initial shot
 
@@ -420,11 +436,16 @@ function truelch_LiberatorMode2:targeting(point, advBallistics)
 	return points
 end
 
+function truelch_LiberatorMode2:isTCExc(p1, p2)
+	LOG("truelch_LiberatorMode2:isTCExc()")
+	return false
+end
 
 function truelch_LiberatorMode2:fire(p1, p2, ret, haloAmmo)
 	local spaceDamage = SpaceDamage(p2, 0)
 	ret:AddDamage(spaceDamage)
 end
+
 
 function truelch_LiberatorMode2:second_targeting(p1, p2--[[, advBallistics]])
 	local ret = PointList()
@@ -448,7 +469,6 @@ function truelch_LiberatorMode2:second_fire(p1, p2, p3, haloAmmo)
 
 	return se
 end
-
 
 ----------------------------------------------------- Skill
 truelch_LiberatorWeapon = aFM_WeaponTemplate:new{
@@ -533,10 +553,9 @@ function truelch_LiberatorWeapon:GetSkillEffect(p1, p2)
 	return se
 end
 
-function truelch_LiberatorWeapon:IsTwoClickException(p1,p2)	
-	return not _G[self:FM_GetMode(p1)].aFM_twoClick
-
-
+function truelch_LiberatorWeapon:IsTwoClickException(p1, p2)	
+	--return not _G[self:FM_GetMode(p1)].aFM_twoClick
+	return _G[self:FM_GetMode(p1)]:isTCExc(p1, p2)
 end
 
 function truelch_LiberatorWeapon:GetSecondTargetArea(p1, p2)
