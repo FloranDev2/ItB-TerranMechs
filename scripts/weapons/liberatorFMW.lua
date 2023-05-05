@@ -534,9 +534,9 @@ function truelch_LiberatorWeapon:GetSkillEffect(p1, p2)
 end
 
 function truelch_LiberatorWeapon:IsTwoClickException(p1,p2)	
-	--return not _G[self:FM_GetMode(p1)].aFM_twoClick
+	return not _G[self:FM_GetMode(p1)].aFM_twoClick
 
-	
+
 end
 
 function truelch_LiberatorWeapon:GetSecondTargetArea(p1, p2)
