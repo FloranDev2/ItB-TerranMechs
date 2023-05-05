@@ -288,7 +288,7 @@ truelch_LiberatorMode1 = {
 	UpShot = "effects/shotup_tribomb_missile.png",
 }
 
-function truelch_LiberatorMode1:second_targeting(p1, p2--[[, advBallistics]])
+function truelch_LiberatorMode1:second_targeting(p1, p2)
 	local ret = PointList()
 
 	local diff = p1 - p2
@@ -367,7 +367,13 @@ end
 function truelch_LiberatorMode1:fire(p1, p2, ret, haloAmmo)
 	local dir = GetDirection(p2 - p1)
 	local targetPawn = Board:GetPawn(p2)
-	local spaceDamage = SpaceDamage(p2, self.SplitDmg)
+
+	local dmg = self.SplitDmg
+	if p1.x == p2.x or p1.y == p2.y then
+		dmg = self.ConcentratedDmg
+	end
+
+	local spaceDamage = SpaceDamage(p2, dmg)
 	ret:AddArtillery(spaceDamage, self.UpShot)
 
 	if haloAmmo then
@@ -527,15 +533,17 @@ function truelch_LiberatorWeapon:GetSkillEffect(p1, p2)
 	return se
 end
 
-function truelch_LiberatorWeapon:IsTwoClickException(p1,p2)
-	return not _G[self:FM_GetMode(p1)].aFM_twoClick 
+function truelch_LiberatorWeapon:IsTwoClickException(p1,p2)	
+	--return not _G[self:FM_GetMode(p1)].aFM_twoClick
+
+	
 end
 
 function truelch_LiberatorWeapon:GetSecondTargetArea(p1, p2)
 	local currentMode = _G[self:FM_GetMode(p1)]
     local pl = PointList()    
 	if self:FM_CurrentModeReady(p1) and currentMode.aFM_twoClick then
-		pl = currentMode:second_targeting(p1, p2--[[, self.AdvBallistics]])
+		pl = currentMode:second_targeting(p1, p2)
 	end
     return pl 
 end
