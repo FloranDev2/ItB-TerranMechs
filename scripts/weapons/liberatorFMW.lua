@@ -135,17 +135,21 @@ end
 --Hm i need to check every mech weapon then (upgrade and stuff)
 local function isInDefendedArea(point)
 	LOG("isInDefendedArea(point: " .. point:GetString() .. ")")
+	--[[
 	for i = 0, 2 do
 		LOG("i: " .. tostring(i))
 		for _, p in ipairs(missionData().defendedArea[i]) do
 			LOG("p: " .. p:GetString())
 			if p == point then
 				LOG("---> TRUE!")
-				return true
+				return i
 			end
 		end
 	end
-	return false
+	return -1
+	]]
+
+	return 2 --tmp
 end
 
 local function computeHaloAoE(ret, point)
@@ -160,24 +164,16 @@ local function computeHaloAoE(ret, point)
 	end
 end
 
-local function defendShot(point)
-	LOG("defendShot(point: " .. point:GetString() .. ")")
-	local se = SkillEffect()
-	local sd = SpaceDamage(point, 2)
-	se:AddArtillery(sd, "effects/shotup_tribomb_missile.png")
-	Board:AddEffect(se)
-end
-
 --123456789012345678901
 --truelch_LiberatorWeapon
 local function isLiberatorWeapon(weaponId)
-	LOG("isLiberatorWeapon")
+	--LOG("isLiberatorWeapon")
 	if weaponId == nil then
-		LOG("weaponId is nil!!")
+		--LOG("weaponId is nil!!")
 		return false
 	end
-	LOG("type: " .. type(weaponId))
-	LOG("weaponId: " .. weaponId)
+	--LOG("type: " .. type(weaponId))
+	--LOG("weaponId: " .. weaponId)
 	local subStr = string.sub(weaponId, 9, 17)
 	local isLiberatorWeapon = (subStr == "Liberator")
 	return isLiberatorWeapon
@@ -190,6 +186,31 @@ local function isDefenderMode(mode)
 	return string.sub(mode, 9, 22) == "LiberatorMode2"
 end
 
+local defendFlag = false
+local function defendShot(pawnIndex, point)
+	LOG("defendShot(point: " .. point:GetString() .. ")")
+	--V1
+	--[[
+	local se = SkillEffect()
+	local sd = SpaceDamage(point, 2)
+	se:AddArtillery(sd, "effects/shotup_tribomb_missile.png")
+	Board:AddEffect(se)
+	]]
+
+	--V2
+	local pawn = Board:GetPawn(pawnIndex)
+	defendFlag = true
+	local weapons = pawn:GetPoweredWeapons()
+	for weaponIdx = 1, 2 do		
+		local weapon = weapons[weaponIdx]
+		if isLiberatorWeapon(weapon) then
+			LOG("isLiberatorWeapon -> Here!")
+			pawn:FireWeapon(point, weaponIdx)
+		end
+	end
+	defendFlag = false
+end
+
 ----------------------------------------------------- Hooks
 --Isn't called for test mission
 local HOOK_onMissionStart = function(mission)
@@ -199,10 +220,12 @@ end
 
 local HOOK_onVekMoveEnd = function(mission, pawn, startLoc, endLoc)
 	LOG(pawn:GetMechName() .. " has finished moving from " .. startLoc:GetString() .. " to " .. endLoc:GetString())
-	if isInDefendedArea(endLoc) then
+
+	local defIndex = isInDefendedArea(endLoc)
+	if defIndex ~= -1 then
 		LOG(" -> is in defended area!")
 		Board:AddAlert(endLoc, "PIEW!")
-		defendShot(endLoc)
+		defendShot(defIndex, endLoc)
 	end
 end
 
@@ -442,6 +465,7 @@ function truelch_LiberatorMode2:isTCExc(p1, p2)
 end
 
 function truelch_LiberatorMode2:fire(p1, p2, ret, haloAmmo)
+	resetDefendedArea() --test
 	local spaceDamage = SpaceDamage(p2, 0)
 	ret:AddDamage(spaceDamage)
 end
@@ -542,6 +566,12 @@ function truelch_LiberatorWeapon:GetTargetArea(point)
 end
 
 function truelch_LiberatorWeapon:GetSkillEffect(p1, p2)
+	LOG("truelch_LiberatorWeapon:GetSkillEffect -> defendFlag: " .. tostring(defendFlag))
+
+	if defendFlag then
+		LOG("DEFEND FLAG YEAAAAH")
+	end
+
 	local se = SkillEffect()
 	local currentMode = self:FM_GetMode(p1)	
 
@@ -573,7 +603,7 @@ function truelch_LiberatorWeapon:GetFinalEffect(p1, p2, p3)
 	if self:FM_CurrentModeReady(p1) and currentMode.aFM_twoClick then
 		se = currentMode:second_fire(p1, p2, p3, self.HaloAmmo)  
 	end
-    return se 
+    return se
 end
 
 --Mode1: Fighter, Mode2: Defender

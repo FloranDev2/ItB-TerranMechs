@@ -69,14 +69,14 @@ local function applyModeOnPawn(pawn, weaponIdx)
         return
     end
 
-    LOG("(before mode)")
+    --LOG("(before mode)")
 
     local mode = fmw:FM_GetMode(p) --works!
 
-    LOG("applyModeOnPawn(pawn: " .. pawn:GetType() .. ")")
+    --LOG("applyModeOnPawn(pawn: " .. pawn:GetType() .. ")")
 
     if mode == "truelch_HellMode1" then
-        LOG("(apply) Hellion")
+        --LOG("(apply) Hellion")
         pawn:SetMoveSpeed(4)
         local healthLost = pawn:GetMaxHealth() - pawn:GetHealth()
         local newMaxHealth = pawn:GetMaxHealth() + 1
@@ -93,7 +93,7 @@ local function applyModeOnPawn(pawn, weaponIdx)
             pawn:SetCustomAnim("hellion")
         end
     elseif mode == "truelch_HellMode2" then
-        LOG("(apply) Hellbat")
+        --LOG("(apply) Hellbat")
         pawn:SetMoveSpeed(2)
         local healthLost = pawn:GetMaxHealth() - pawn:GetHealth()
         local newMaxHealth = pawn:GetMaxHealth() - 1
@@ -110,47 +110,53 @@ local function applyModeOnPawn(pawn, weaponIdx)
             pawn:SetCustomAnim("hellbat")
         end
     elseif mode == "truelch_VikingMode1" then
-        LOG("(apply) Viking Fighter")
+        --LOG("(apply) Viking Fighter")
         pawn:SetMoveSpeed(4)
         pawn:SetFlying(true)
         if pawn:GetType() == "VikingMech" then
             pawn:SetCustomAnim("viking_fighter")
         end
+        --LOG(" --- OK!")
     elseif mode == "truelch_VikingMode2" then
-        LOG("(apply) Viking Assault")
+        --LOG("(apply) Viking Assault")
         pawn:SetMoveSpeed(3)
         pawn:SetFlying(false)
         if pawn:GetType() == "VikingMech" then
             pawn:SetCustomAnim("viking_assault")
         end
+        --LOG(" --- OK!")
     elseif mode == "truelch_CrucioMode1" then
-        LOG("(apply) Crucio Tank")
+        --LOG("(apply) Crucio Tank")
         pawn:SetMoveSpeed(3)
         pawn:SetPushable(true)
         if pawn:GetType() == "CrucioMech" then
             pawn:SetCustomAnim("crucio_tank")
         end
+        --LOG(" --- OK!")
     elseif mode == "truelch_CrucioMode2" then
-        LOG("(apply) Crucio Siege")
-        Pawn:SetMoveSpeed(0)
+        --LOG("(apply) Crucio Siege")
+        pawn:SetMoveSpeed(0)
         pawn:SetPushable(false)
         if pawn:GetType() == "CrucioMech" then
             pawn:SetCustomAnim("crucio_siege")
         end
+        --LOG(" --- OK!")
     elseif mode == "truelch_LiberatorMode1" then --------NEW!!!
-        LOG("(apply) Liberator Fighter")
+        --LOG("(apply) Liberator Fighter")
         pawn:SetMoveSpeed(2)
         pawn:SetPushable(true)
         if pawn:GetType() == "LiberatorMech" then
             pawn:SetCustomAnim("liberator_fighter")
         end
+        --LOG(" --- OK!")
     elseif mode == "truelch_LiberatorMode2" then --------NEW!!!
-        LOG("(apply) Liberator Defender")
-        Pawn:SetMoveSpeed(0)
+        --LOG("(apply) Liberator Defender")
+        pawn:SetMoveSpeed(0)
         pawn:SetPushable(false)
         if pawn:GetType() == "LiberatorMech" then
             pawn:SetCustomAnim("liberator_defender")
         end
+        --LOG(" --- OK!")
     end
 end
 
@@ -226,11 +232,11 @@ end
 --FM_SetMode(p, mode) --FMW, api.lua, line 205
 
 local function returnToDefaultModeB(pawn, pawnId, index)
-    LOG("returnToDefaultModeB(p: " .. pawnId .. ", index: " .. tostring(index) .. ")")
+    --LOG("returnToDefaultModeB(p: " .. pawnId .. ", index: " .. tostring(index) .. ")")
 
     local fmwId = truelch_terran_fmwApi:GetSkillId(pawnId, index)
 
-    LOG("fmwId: " .. tostring(fmwId))
+    --LOG("fmwId: " .. tostring(fmwId))
 
     local fmw = truelch_terran_fmwApi:GetSkill(pawnId, index, false)
 
@@ -238,7 +244,7 @@ local function returnToDefaultModeB(pawn, pawnId, index)
         return
     end
 
-    LOG("FMW exists! pawn:GetType(): " .. pawn:GetType())
+    --LOG("FMW exists! pawn:GetType(): " .. pawn:GetType())
     
     --Big if
     --if fmwId == "truelch_HellMode2" then
@@ -246,7 +252,7 @@ local function returnToDefaultModeB(pawn, pawnId, index)
         fmwId == "truelch_HellWeapon_A" or
         fmwId == "truelch_HellWeapon_B" or
         fmwId == "truelch_HellWeapon_AB" then
-        LOG("Changing hellbat to hellion!")
+        --LOG("Changing hellbat to hellion!")
         --fmw:FM_SetMode(pawnId, "truelch_HellMode1")
         pawn:SetMoveSpeed(4)
         if pawn:GetType() == "HellMech" then
@@ -257,7 +263,7 @@ local function returnToDefaultModeB(pawn, pawnId, index)
         fmwId == "truelch_VikingWeapon_A" or
         fmwId == "truelch_VikingWeapon_B" or
         fmwId == "truelch_VikingWeapon_AB" then
-        LOG("Changing viking's assault mode to fighter mode!")
+        --LOG("Changing viking's assault mode to fighter mode!")
         --fmw:FM_SetMode(pawnId, "truelch_VikingMode1")
         pawn:SetMoveSpeed(4)
         pawn:SetFlying(true)
@@ -269,7 +275,7 @@ local function returnToDefaultModeB(pawn, pawnId, index)
         fmwId == "truelch_CrucioWeapon_A" or
         fmwId == "truelch_CrucioWeapon_B" or
         fmwId == "truelch_CrucioWeapon_AB" then
-        LOG("Changing crucio's siege mode to tank mode!")
+        --LOG("Changing crucio's siege mode to tank mode!")
         --fmw:FM_SetMode(pawnId, "truelch_CrucioMode1")
         pawn:SetMoveSpeed(3)
         pawn:SetPushable(true)
@@ -280,13 +286,13 @@ local function returnToDefaultModeB(pawn, pawnId, index)
 end
 
 local function returnToDefaultMode(pawn, pawnId)
-    LOG("returnToDefaultMode(pawnId: " .. tostring(pawnId) .. ")")
+    --LOG("returnToDefaultMode(pawnId: " .. tostring(pawnId) .. ")")
     returnToDefaultModeB(pawn, pawnId, 1)
     returnToDefaultModeB(pawn, pawnId, 2)
 end
 
 local function returnToDefaultModeForAllMechs()
-    LOG("returnToDefaultModeForAllMechs()")
+    --LOG("returnToDefaultModeForAllMechs()")
     for i = 0, 2 do
         local pawn = Board:GetPawn(i)
         local pawnId = pawn:GetId()
@@ -309,9 +315,9 @@ end
 
 --maybe only useful for the first turn
 local function HOOK_onNextTurnHook()
-    LOG("HOOK_onNextTurnHook()")
+    --LOG("HOOK_onNextTurnHook()")
     if Game:GetTeamTurn() == TEAM_PLAYER then
-        LOG(" -> TEAM_PLAYER")
+        --LOG(" -> TEAM_PLAYER")
         enableSwitchForAllMechs()
         --not needed anymore as we change non-temporary stats
         --well, it seems that I DO need it for the turn reset
@@ -321,20 +327,20 @@ end
 
 local function HOOK_onPostLoadGame()
     modApi:runLater(function()
-        LOG("\n1 frame later\n")
+        --LOG("\n1 frame later\n")
         --Board not nil here! LET'S GOOOO
         --applyModes()
         --Adding some frames to let FMW init itself too (not sure about this)
         modApi:runLater(function()
-            LOG("\n2 frames later\n")
+            --LOG("\n2 frames later\n")
             modApi:runLater(function()
-                LOG("\n3 frames later\n")
+                --LOG("\n3 frames later\n")
                 modApi:runLater(function()
-                    LOG("\n4 frames later\n")
+                    --LOG("\n4 frames later\n")
                     modApi:runLater(function()
-                        LOG("\n5 frames later\n")
+                        --LOG("\n5 frames later\n")
                         modApi:runLater(function()
-                            LOG("\n6 frames later\n")
+                            --LOG("\n6 frames later\n")
                             modApi:runLater(function()
                                 applyModes() --test, really not sure about this
                             end)
@@ -347,12 +353,12 @@ local function HOOK_onPostLoadGame()
 end
 
 local function HOOK_onMissionStart(mission)
-    LOG("HOOK_onMissionStart()")
+    --LOG("HOOK_onMissionStart()")
     returnToDefaultModeForAllMechs()
 end
 
 local function HOOK_onMissionEnd(mission)
-    LOG("HOOK_onMissionEnd()")
+    --LOG("HOOK_onMissionEnd()")
     enableSwitchForAllMechs() --to be sure they can use the morph
     returnToDefaultModeForAllMechs()
 end
