@@ -21,7 +21,7 @@ end
 modApi.events.onMissionUpdate:subscribe(function(mission)
 	if tries < maxTries and movingEnemy ~= nil then
 		tries = tries + 1
-		LOG("[".. tostring(tries) .."] pos: " .. movingEnemy:GetSpace():GetString() .. " board busy: " .. tostring(Board:IsBusy()))
+		--LOG("[".. tostring(tries) .."] pos: " .. movingEnemy:GetSpace():GetString() .. " board busy: " .. tostring(Board:IsBusy()))
 		if remainingTries == 0 then
 			movingEnemy = nil
 		end
