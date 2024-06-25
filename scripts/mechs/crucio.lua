@@ -64,7 +64,7 @@ CrucioMech = Pawn:new{
 	Image = "crucio_tank",
 	ImageOffset = imageOffset,
 	
-	SkillList = { "truelch_CrucioWeapon", "atlas_Mortar" },
+	SkillList = { "truelch_CrucioWeapon" }, --{ "truelch_CrucioWeapon", "atlas_Mortar" },
 
 	SoundLocation = "/mech/prime/punch_mech/",
 	ImpactMaterial = IMPACT_METAL,

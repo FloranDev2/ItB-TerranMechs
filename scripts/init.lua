@@ -2,8 +2,8 @@ local mod = {
 	id = "truelch_TerranMechs",
 	name = "Terran Mechs",
 	icon = "img/mod_icon.png",
-	version = "2.0.0",
-	modApiVersion = "2.9.1",
+	version = "2.0.1",
+	modApiVersion = "2.9.2",
 	gameVersion = "1.2.88",
     dependencies = {
         modApiExt = "1.17",
@@ -19,7 +19,7 @@ function mod:init()
 	require(self.scriptPath .. "mechs/hell")
 	require(self.scriptPath .. "mechs/viking")
 	require(self.scriptPath .. "mechs/crucio")
-	require(self.scriptPath .. "mechs/liberator")
+	--require(self.scriptPath .. "mechs/liberator")
 	
 	--Libs
 	require(self.scriptPath .. "libs/artilleryArc")
@@ -38,7 +38,7 @@ function mod:init()
 	require(self.scriptPath .. "/weapons/vikingFMW_BackUp") --vikingFMW_BackUp --vikingFMW
 	require(self.scriptPath .. "/weapons/crucioFMW")
 	--require(self.scriptPath .. "/weapons/liberatorFMW")
-	require(self.scriptPath .. "/weapons/testDefend")
+	--require(self.scriptPath .. "/weapons/testDefend")
 	-- <----- FMW
 
 	--Test
@@ -67,7 +67,7 @@ function mod:load(options, version)
 			"Terran Mechs",
 			"HellMech",
 			"VikingMech",
-			"LiberatorMech" --"CrucioMech"
+			"CrucioMech" --"CrucioMech" --"LiberatorMech"
 		},
 		"Terran Mechs",
 		"The numerous parallel timelines created a breach to the Koprulu System.\nA Squad of Terran Mechs has been trapped and fights its way back to the Terran Dominion!",
