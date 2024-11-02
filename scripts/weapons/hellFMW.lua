@@ -192,7 +192,7 @@ function truelch_HellMode2:targeting(point)
 end
 
 function truelch_HellMode2:CustomShot(ret, p1, pos, direction, fireDmg, immoFluid, ignitedEnemies)
-	LOG("truelch_HellMode2:CustomShot(ignitedEnemies: " .. tostring(ignitedEnemies) .. ")")
+	--LOG("truelch_HellMode2:CustomShot(ignitedEnemies: " .. tostring(ignitedEnemies) .. ")")
 	local spaceDamage = SpaceDamage(pos, 0, direction)
 	spaceDamage.iFire = EFFECT_CREATE
 	spaceDamage.sAnimation = "flamethrower1_"..direction	
@@ -218,12 +218,10 @@ function truelch_HellMode2:CustomShot(ret, p1, pos, direction, fireDmg, immoFlui
 						ret:AddDamage(immoFluidSpaceDamage)
 					end
 					-- Achv (Heaven's Devils) --->
-					--[[
 					if Board:GetPawn(adjacentPos) ~= nil and Board:GetPawn(adjacentPos):IsEnemy() then
 						ignitedEnemies = ignitedEnemies + 1
 					end
-					]]
-					-- <--- Achv (Heaven's Devils)					
+					-- <--- Achv (Heaven's Devils)
 				end
 			end
 		end
@@ -240,7 +238,7 @@ function truelch_HellMode2:fire(p1, p2, ret, fireDmg, immoFluid)
 
 	local ignitedEnemies = 0
 
-	LOG("A")
+	--LOG("A")
 
 	--LEFT
 	pos = p2 - DIR_VECTORS[(direction + 1)% 4]
@@ -255,7 +253,6 @@ function truelch_HellMode2:fire(p1, p2, ret, fireDmg, immoFluid)
 	ignitedEnemies = self:CustomShot(ret, p1, pos, direction, fireDmg, immoFluid, ignitedEnemies)
 
 	-- [END] Achv (Heaven's Devils) --->
-	--[[
 	local isTargetEnemy = true
 	if Board:GetPawn(p2) ~= nil then
 		isTargetEnemy = Board:GetPawn(p2):IsEnemy()
@@ -264,7 +261,6 @@ function truelch_HellMode2:fire(p1, p2, ret, fireDmg, immoFluid)
 	if not isTargetEnemy and ignitedEnemies >= HEAVENS_DEVILS_GOAL then
 		ret:AddScript("completeHeavensDevils()")
 	end
-	]]
 	-- <--- [END] Achv (Heaven's Devils)
 end
 
