@@ -139,6 +139,17 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 		end
 	end
 
+	--Was here
+	--[[
+	if aoe then
+		local max = 2
+		if phobos then max = 3 end
+		for i = 1, max do
+			computeAoE(ret, p2, dir, aoe)
+		end
+	end
+	]]
+
 	local soundDamage = SpaceDamage(p2)
 	soundDamage.sSound = self.LaunchSound
 	ret:AddDamage(soundDamage)
@@ -153,6 +164,8 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 		ret:AddArtillery(fakedamage,"effects/shotup_torpedo1.png", NO_DELAY)
 		ret:AddDelay(0.025)
 		ret:AddArtillery(fakedamage,"effects/shotup_torpedo2.png", FULL_DELAY)
+
+		ret:AddDamage(fakedamage) --test
 
 		if dmg > 0 then
 			spaceDamage.sAnimation = "explopush1_"..dir
@@ -170,6 +183,8 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 		ret:AddDelay(0.025)
 		ret:AddArtillery(fakedamage,"effects/shotup_torpedo3.png", FULL_DELAY)
 
+		ret:AddDamage(fakedamage) --test
+
 		if dmg > 0 then
 			spaceDamage.sAnimation = "explopush2_"..dir
 		else
@@ -179,9 +194,10 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 		ret:AddDamage(spaceDamage)
 	end
 
-	ret:AddDamage(fakedamage)
+	--ret:AddDamage(fakedamage)
 
 	--AoE moved here
+	--Does this cause the issue of not displaying push?
 	if aoe then
 		local max = 2
 		if phobos then max = 3 end
