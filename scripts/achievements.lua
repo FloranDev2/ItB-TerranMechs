@@ -189,6 +189,7 @@ function completeTrenchWar()
 end
 
 local function computeStartTurnTrenchWar()
+	LOG("TRUELCH --- computeStartTurnTrenchWar() (which initializes trenchWarMoveCount)")
 	missionData().trenchWarMoveCount = 0
 	local enemyCount = countNonFrozenEnemies()
 	local enemyCountOk = enemyCount >= TRENCH_WARS_ENEMY_GOAL
@@ -345,29 +346,34 @@ local function HOOK_onNextTurnHook()
 end
 
 local HOOK_onSkillEnd = function(mission, pawn, weaponId, p1, p2)
-	if not isSquad() then
+	if not isSquad() or not isMission() then
 		return
 	end
 
     if weaponId == "Move" and isTerranMech(pawn:GetType()) then
-        missionData().trenchWarMoveCount = missionData().trenchWarMoveCount + 1
+    	LOG("TRUELCH --- Incrementing trenchWarMoveCount...")
+
+
+
+        missionData().trenchWarMoveCount = missionData().trenchWarMoveCount + 1 --atm (03/11/24), this causes an error
         --LOG("A Terran Mech moved -> move count: " .. tostring(missionData().trenchWarMoveCount))
     end
 end
 
 local HOOK_onPawnUndoMove = function(mission, pawn, undonePosition)
-	if not isSquad() then
+	if not isSquad() or not isMission() then
 		return
 	end
 
     if isTerranMech(pawn:GetType()) then
+    	LOG("TRUELCH --- Decrementing trenchWarMoveCount...")
     	missionData().trenchWarMoveCount = missionData().trenchWarMoveCount - 1
-    	LOG("A Terran Mech cancelled move -> move count: " .. tostring(missionData().trenchWarMoveCount))
+    	--LOG("A Terran Mech cancelled move -> move count: " .. tostring(missionData().trenchWarMoveCount))
     end
 end
 
 local HOOK_onMissionEnd = function(mission)
-	if not isSquad() then
+	if not isSquad() or not isMission() then
 		return
 	end
 

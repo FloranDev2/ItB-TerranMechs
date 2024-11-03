@@ -21,25 +21,6 @@ modApi:appendAsset("img/effects/shotup_torpedo_phobos.png",  resources .. "img/e
 
 ----------------------------------------------------- Custom functions
 
---[[
-local additionalEnemyPawns =
-{
-	"Dam_Pawn"
-}
-
-local function isEnemyPawn(pawn)
-	if pawn:GetTeam() == TEAM_ENEMY then
-		return true
-	end
-	for _,v in pairs(additionalEnemyPawns) do
-		if v == pawn:GetType() then
-			return true
-		end
-	end
-	return false
-end
-]]
-
 --Should it only target enemy pawns?
 --Would be too powerful I guess
 local function computeSideAoE(ret, sidePos, dir)
@@ -184,14 +165,26 @@ truelch_VikingMode2 = truelch_VikingMode1:new{
 	--Art
 	impactsound = "/impact/generic/explosion_large",
 	LaunchSound = "/general/combat/explode_small",
-	--Custom art
-	UpShot = "", --Old
-	MuzzleEffectArt = "effects/truelch_gatling_muzzle_flash_", --Old
-	--Common
-	Range = 3,
-	Damage = 1,
-	Shots = 2,
+	--Multishot
+	GetTargetArea = TankDefault.GetTargetArea,
+	PathSize = INT_MAX,
+	Shots = 3,
 }
+
+function truelch_VikingMode2:PrepareFire(pawnId, p1, p2)
+	local pawn = Board:GetPawn(pawnId)
+	if pawn == nil then
+		return
+	end
+
+	-- Create a new SkillEffect and add it to the Board, so the code will execute after the previous SkillEffect has finished.
+	-- Check if the unit was originally boosted, so we can boost each shot manually if needed.
+	local fx = SkillEffect()
+
+	fx:AddScript(string.format("truelch_VikingMode2:Fire(%s,%s,%s)", pawnId, p2:GetString(), tostring(pawn:IsBoosted())))
+
+	Board:AddEffect(fx)
+end
 
 function truelch_VikingMode2:targeting(point)
 	--LOG("------------------------------------- truelch_VikingMode2:targeting(point)")
@@ -220,7 +213,17 @@ function truelch_VikingMode2:CustomShot(ret, p1, target, dir, aoe)
 	--LOG("CustomShot(p1: " .. p1:GetString() .. ", target: " .. target:GetString() .. ")")
 	local spaceDamage = SpaceDamage(target, self.Damage)
 	spaceDamage.sAnimation = "explopush2_"..dir
-	spaceDamage.sSound = self.LaunchSound
+	--spaceDamage.sSound = self.LaunchSound
+	spaceDamage.sSound = "/weapons/swap"
+
+	--Test --->
+	--[[
+	local effect = SkillEffect()
+	effect:AddSound("/weapons/swap")
+	Board:AddEffect(effect)
+	]]
+	-- <--- Test
+
 	ret:AddArtillery(spaceDamage, self.UpShot)
 
 	-- Muzzle flash effect --->

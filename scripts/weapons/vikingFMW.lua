@@ -15,9 +15,9 @@ modApi:appendAsset("img/modes/icon_viking_fighter.png", resources .. "img/modes/
 modApi:appendAsset("img/modes/icon_viking_assault.png", resources .. "img/modes/icon_viking_assault.png")
 
 --Effects
-modApi:appendAsset("img/effects/shotup_torpedo_normal.png",  resources .. "img/effects/shotup_torpedo_normal.png")
-modApi:appendAsset("img/effects/shotup_torpedo_phobos.png",  resources .. "img/effects/shotup_torpedo_phobos.png")
-
+modApi:appendAsset("img/effects/shotup_torpedo1.png", resources .. "img/effects/shotup_torpedo1.png")
+modApi:appendAsset("img/effects/shotup_torpedo2.png", resources .. "img/effects/shotup_torpedo2.png")
+modApi:appendAsset("img/effects/shotup_torpedo3.png", resources .. "img/effects/shotup_torpedo3.png")
 
 ----------------------------------------------------- Custom functions
 
@@ -27,14 +27,15 @@ local function computeSideAoE(ret, sidePos, dir)
 	local pawn = Board:GetPawn(sidePos)
 	if pawn ~= nil and pawn:IsEnemy() then
 		local aoeSpaceDamage = SpaceDamage(sidePos, 1)
-		aoeSpaceDamage.sAnimation = "airpush_"..((dir+1)%4)
+		--aoeSpaceDamage.sAnimation = "airpush_"..((dir+1)%4)
+		aoeSpaceDamage.sAnimation = "explopush1_"..dir
 		ret:AddDamage(aoeSpaceDamage)
 	end
 end
 
 local function computeAoE(ret, p, dir, aoe)
-	computeSideAoE(ret, p + DIR_VECTORS[(dir-1)%4], dir)
-	computeSideAoE(ret, p + DIR_VECTORS[(dir+1)%4], dir)
+	computeSideAoE(ret, p + DIR_VECTORS[(dir-1)%4], (dir-1)%4)
+	computeSideAoE(ret, p + DIR_VECTORS[(dir+1)%4], (dir+1)%4)
 end
 
 
@@ -137,7 +138,9 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 		end
 	end
 
+	--TODO: move that AFTER
 	--Can also be triggered by other obstacles like Mountains or Buildings
+	--[[
 	if aoe then
 		local max = 2
 		if phobos then max = 3 end
@@ -145,13 +148,57 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 			computeAoE(ret, p2, dir, aoe)
 		end
 	end
-	local spaceDamage = SpaceDamage(p2, dmg, dir)
-	spaceDamage.sSound = self.LaunchSound
+	]]
 
-	if phobos then
-		ret:AddArtillery(spaceDamage, self.PhobosUpShot)
+	local soundDamage = SpaceDamage(p2)
+	soundDamage.sSound = self.LaunchSound
+	ret:AddDamage(soundDamage)
+
+	local spaceDamage = SpaceDamage(p2, dmg, dir)
+
+	--Took inspiration from Djinn's Tamed Monsters Impaling Spikes to improve this artillery visuals
+	fakedamage = SpaceDamage(p2)
+	
+	if phobos == false then
+		--2 Projectiles
+		ret:AddArtillery(fakedamage,"effects/shotup_torpedo1.png", NO_DELAY)
+		ret:AddDelay(0.025)
+		ret:AddArtillery(fakedamage,"effects/shotup_torpedo2.png", FULL_DELAY)
+
+		if dmg > 0 then
+			spaceDamage.sAnimation = "explopush1_"..dir
+		else
+			spaceDamage.sAnimation = "airpush_"..dir
+		end
+
+		ret:AddDamage(spaceDamage)
+
 	else
-		ret:AddArtillery(spaceDamage, self.NormalUpShot)
+		--3 Projectiles
+		ret:AddArtillery(fakedamage,"effects/shotup_torpedo1.png", NO_DELAY)
+		ret:AddDelay(0.025)
+		ret:AddArtillery(fakedamage,"effects/shotup_torpedo2.png", NO_DELAY)
+		ret:AddDelay(0.025)
+		ret:AddArtillery(fakedamage,"effects/shotup_torpedo3.png", FULL_DELAY)
+
+		if dmg > 0 then
+			spaceDamage.sAnimation = "explopush2_"..dir
+		else
+			spaceDamage.sAnimation = "airpush_"..dir
+		end
+
+		ret:AddDamage(spaceDamage)
+	end
+
+	ret:AddDamage(fakedamage)
+
+	--AoE moved here
+	if aoe then
+		local max = 2
+		if phobos then max = 3 end
+		for i = 1, max do
+			computeAoE(ret, p2, dir, aoe)
+		end
 	end
 end
 
@@ -165,26 +212,14 @@ truelch_VikingMode2 = truelch_VikingMode1:new{
 	--Art
 	impactsound = "/impact/generic/explosion_large",
 	LaunchSound = "/general/combat/explode_small",
-	--Multishot
-	GetTargetArea = TankDefault.GetTargetArea,
-	PathSize = INT_MAX,
-	Shots = 3,
+	--Custom art
+	UpShot = "", --Old
+	MuzzleEffectArt = "effects/truelch_gatling_muzzle_flash_",
+	--Common
+	Range = 3,
+	Damage = 1,
+	Shots = 2,
 }
-
-function truelch_VikingMode2:PrepareFire(pawnId, p1, p2)
-	local pawn = Board:GetPawn(pawnId)
-	if pawn == nil then
-		return
-	end
-
-	-- Create a new SkillEffect and add it to the Board, so the code will execute after the previous SkillEffect has finished.
-	-- Check if the unit was originally boosted, so we can boost each shot manually if needed.
-	local fx = SkillEffect()
-
-	fx:AddScript(string.format("truelch_VikingMode2:Fire(%s,%s,%s)", pawnId, p2:GetString(), tostring(pawn:IsBoosted())))
-
-	Board:AddEffect(fx)
-end
 
 function truelch_VikingMode2:targeting(point)
 	--LOG("------------------------------------- truelch_VikingMode2:targeting(point)")
@@ -212,8 +247,11 @@ end
 function truelch_VikingMode2:CustomShot(ret, p1, target, dir, aoe)
 	--LOG("CustomShot(p1: " .. p1:GetString() .. ", target: " .. target:GetString() .. ")")
 	local spaceDamage = SpaceDamage(target, self.Damage)
-	spaceDamage.sAnimation = "explopush2_"..dir
-	spaceDamage.sSound = self.LaunchSound
+	--spaceDamage.sAnimation = "explopush2_"..dir
+	spaceDamage.sAnimation = "ExploArt1"
+
+	spaceDamage.sSound = "/impact/generic/explosion"
+
 	ret:AddArtillery(spaceDamage, self.UpShot)
 
 	-- Muzzle flash effect --->
@@ -254,13 +292,6 @@ function truelch_VikingMode2:fire(p1, p2, ret, phobos, aoe)
 	local terrainHp = 0
 	local isObstacle
 
-	-- Muzzle flash effect --->
-	--local muzzle = SpaceDamage(p1 + DIR_VECTORS[direction])
-	--local muzzleAnim = "truelch_gatling_muzzle_flash_" .. direction
-	--muzzle.sAnimation = muzzleAnim
-	--ret:AddDamage(muzzle)
-	-- <--- Muzzle flash effect
-
 	--Loop!
 	local loopContinue = true
 	while loopContinue do
@@ -275,7 +306,7 @@ function truelch_VikingMode2:fire(p1, p2, ret, phobos, aoe)
 
 			--shoots remaining projectile
 			for i = 1, remainingShots do
-				self:CustomShot(ret, p1, curr, direction, aoe)
+				self:CustomShot(ret, p1, curr, direction, aoe)				
 			end
 
 			--end
