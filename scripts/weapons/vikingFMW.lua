@@ -27,8 +27,9 @@ local function computeSideAoE(ret, sidePos, dir)
 	local pawn = Board:GetPawn(sidePos)
 	if pawn ~= nil and pawn:IsEnemy() then
 		local aoeSpaceDamage = SpaceDamage(sidePos, 1)
-		--aoeSpaceDamage.sAnimation = "airpush_"..((dir+1)%4)
-		aoeSpaceDamage.sAnimation = "explopush1_"..dir
+		--aoeSpaceDamage.sAnimation = "explopush1_"..dir
+		--aoeSpaceDamage.sAnimation = "explopush1_"..dir
+		aoeSpaceDamage.sAnimation = "ExploArt1" --above looks like it'd push
 		ret:AddDamage(aoeSpaceDamage)
 	end
 end
@@ -137,18 +138,6 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 			end
 		end
 	end
-
-	--TODO: move that AFTER
-	--Can also be triggered by other obstacles like Mountains or Buildings
-	--[[
-	if aoe then
-		local max = 2
-		if phobos then max = 3 end
-		for i = 1, max do
-			computeAoE(ret, p2, dir, aoe)
-		end
-	end
-	]]
 
 	local soundDamage = SpaceDamage(p2)
 	soundDamage.sSound = self.LaunchSound
