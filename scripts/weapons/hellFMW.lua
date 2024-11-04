@@ -53,7 +53,7 @@ end
 
 truelch_HellMode1 = {
 	aFM_name = "Hellion",
-	aFM_desc = "Resets to normal move.\nInfernal flamethrower: Ignites an adjacent targets and pushes the next tile forward.",
+	aFM_desc = "Return to normal move.\nInfernal flamethrower: ignite an adjacent tile and push the next tile forward.",
 	aFM_icon = "img/modes/icon_hellion.png",
 }
 
@@ -321,7 +321,7 @@ truelch_HellWeapon_A = truelch_HellWeapon:new{
 }
 
 truelch_HellWeapon_B = truelch_HellWeapon:new{
-	UpgradeDescription = "Deals 2 damage to enemy units that are already on fire.",
+	UpgradeDescription = "Deal 2 damage to enemy units that are already on fire.",
 	FireDamage = 2,
 }
 

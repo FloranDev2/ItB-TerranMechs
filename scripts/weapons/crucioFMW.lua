@@ -94,7 +94,7 @@ end
 
 truelch_CrucioMode2 = truelch_CrucioMode1:new{
 	aFM_name = "Siege Mode",
-	aFM_desc = "Makes the Crucio Mech immobile and stable.\nShock Cannon: artillery shot that deals 4 damage to the main target. Adjacent tiles take 1 damage.\nThey are also pulled if there's nothing in the center.",
+	aFM_desc = "Makes the Crucio Mech immobile and stable.\nShock Cannon: artillery shot that deals 4 damage to the main target and 1 damage to surrounding tiles.", --\nThey are also pulled if there's nothing in the center. <-- not anymore :( :(
 	aFM_icon = "img/modes/icon_crucio_siege.png",
 	--Art
 	image = "effects/shotup_standardshell_missile.png",
@@ -267,7 +267,7 @@ Weapon_Texts.truelch_CrucioWeapon_Upgrade1 = "Shaped Blast"
 Weapon_Texts.truelch_CrucioWeapon_Upgrade2 = "Maelstrom Rounds"
 
 truelch_CrucioWeapon_A = truelch_CrucioWeapon:new{
-	UpgradeDescription = "No longer deal damage to friendly units and buildings.",
+	UpgradeDescription = "No longer deal damage to friendly units or buildings.",
 	FriendlyFire = false,
 }
 

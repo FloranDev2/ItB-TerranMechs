@@ -44,7 +44,7 @@ end
 
 truelch_VikingMode1 = {
 	aFM_name = "Fighter Mode",
-	aFM_desc = "Gains flying and has full move.\nLanzer Torpedoes: hits the first ground or first air target. Deals 2 damage to flying or massive enemy units.",
+	aFM_desc = "Flying and 4 move.\nLanzer Torpedoes: hit either the first ground or first air target.\nDeal 2 damage to flying or massive enemy units.",
 	aFM_icon = "img/modes/icon_viking_fighter.png",
 	--Custom
 	BonusDmg = 2,
@@ -203,7 +203,7 @@ end
 
 truelch_VikingMode2 = truelch_VikingMode1:new{
 	aFM_name = "Assault Mode",
-	aFM_desc = "Loses flying and 1 move.\nTwin Gatling Cannons: fires 2 projectiles that deal 1 damage each.\nMax range: 3.",
+	aFM_desc = "Move: 3 (ground).\nTwin Gatling Cannons: fire 2 projectiles that deal 1 damage each.\nMax range: 3.",
 	aFM_icon = "img/modes/icon_viking_assault.png",	
 	--Art
 	impactsound = "/impact/generic/explosion_large",
