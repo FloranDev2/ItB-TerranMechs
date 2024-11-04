@@ -139,33 +139,28 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 		end
 	end
 
-	--Was here
-	--[[
-	if aoe then
-		local max = 2
-		if phobos then max = 3 end
-		for i = 1, max do
-			computeAoE(ret, p2, dir, aoe)
-		end
-	end
-	]]
-
 	local soundDamage = SpaceDamage(p2)
 	soundDamage.sSound = self.LaunchSound
 	ret:AddDamage(soundDamage)
 
 	local spaceDamage = SpaceDamage(p2, dmg, dir)
 
-	--Took inspiration from Djinn's Tamed Monsters Impaling Spikes to improve this artillery visuals
-	fakedamage = SpaceDamage(p2)
+	--Took inspiration from Djinn's Tamed Monsters Impaling Spikes to improve this artillery visuals	
 	
+	local fakedamage = SpaceDamage(p2)
+
 	if phobos == false then
-		--2 Projectiles
+		--2 Projectiles		
 		ret:AddArtillery(fakedamage,"effects/shotup_torpedo1.png", NO_DELAY)
-		ret:AddDelay(0.025)
+		ret:AddDamage(fakedamage)
+
+		--Edit: this also sometimes bug?!
+		--ret:AddDelay(0.015) --0.15 seems to be the limit before it screws arc
+		--ret:AddDelay(0.025) --was better looking, but for some reason, it causes the arc to bug
+
 		ret:AddArtillery(fakedamage,"effects/shotup_torpedo2.png", FULL_DELAY)
 
-		ret:AddDamage(fakedamage) --test
+		ret:AddDamage(fakedamage)
 
 		if dmg > 0 then
 			spaceDamage.sAnimation = "explopush1_"..dir
@@ -178,12 +173,12 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 	else
 		--3 Projectiles
 		ret:AddArtillery(fakedamage,"effects/shotup_torpedo1.png", NO_DELAY)
-		ret:AddDelay(0.025)
+		--ret:AddDelay(0.015)
 		ret:AddArtillery(fakedamage,"effects/shotup_torpedo2.png", NO_DELAY)
-		ret:AddDelay(0.025)
+		--ret:AddDelay(0.015)
 		ret:AddArtillery(fakedamage,"effects/shotup_torpedo3.png", FULL_DELAY)
 
-		ret:AddDamage(fakedamage) --test
+		ret:AddDamage(fakedamage)
 
 		if dmg > 0 then
 			spaceDamage.sAnimation = "explopush2_"..dir
@@ -194,10 +189,6 @@ function truelch_VikingMode1:fire(p1, p2, ret, phobos, aoe)
 		ret:AddDamage(spaceDamage)
 	end
 
-	--ret:AddDamage(fakedamage)
-
-	--AoE moved here
-	--Does this cause the issue of not displaying push?
 	if aoe then
 		local max = 2
 		if phobos then max = 3 end

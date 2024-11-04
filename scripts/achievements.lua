@@ -352,9 +352,6 @@ local HOOK_onSkillEnd = function(mission, pawn, weaponId, p1, p2)
 
     if weaponId == "Move" and isTerranMech(pawn:GetType()) then
     	LOG("TRUELCH --- Incrementing trenchWarMoveCount...")
-
-
-
         missionData().trenchWarMoveCount = missionData().trenchWarMoveCount + 1 --atm (03/11/24), this causes an error
         --LOG("A Terran Mech moved -> move count: " .. tostring(missionData().trenchWarMoveCount))
     end
