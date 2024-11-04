@@ -175,7 +175,7 @@ end
 
 truelch_HellMode2 = truelch_HellMode1:new{
 	aFM_name = "Hellbat",
-	aFM_desc = "Reduces move by 2.\nNapalm Spray: Ignites and pushes 3 tiles in front.",
+	aFM_desc = "Reduces move by 2.\nNapalm Spray: ignite and push 3 tiles in front.",
 	aFM_icon = "img/modes/icon_hellbat.png",
 }
 

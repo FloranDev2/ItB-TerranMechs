@@ -10,15 +10,15 @@ The numerous parallel timelines created a breach to the Koprulu System.\nA Squad
 
 ### Hellion Mode (default)
 Faster mode. (4 move)
-- Infernal flamethrower: ignite an adjacent tile and push the next tile forward.
+- Infernal flamethrower: ignite an adjacent tile and push the next tile forward
 
 ### Hellbat Mode
 Slower mode. (2 move)
-- Napalm Spray: 
+- Napalm Spray: ignite and push 3 tiles in front
 
 ### Upgrades
-- Immolation Fluid (1 core): when attacking units already on fire, adjacent tiles are ignited as well.
-- Infernal Pre-Igniter (2 cores): deal 2 damage to enemy units that are already on fire.
+- Immolation Fluid (1 core): when attacking units already on fire, adjacent tiles are ignited as well
+- Infernal Pre-Igniter (2 cores): deal 2 damage to enemy units that are already on fire
 
 
 ## Viking Mech
