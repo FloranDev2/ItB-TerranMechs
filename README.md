@@ -2,7 +2,8 @@
 
 IMPORTANT NOTE: this squad is now compatible with the Advanced Edition! :)
 
-The numerous parallel timelines created a breach to the Koprulu System.\nA Squad of Terran Mechs has been trapped and fights its way back to the Terran Dominion!
+The numerous parallel timelines created a breach to the Koprulu System.
+A Squad of Terran Mechs has been trapped and fights its way back to the Terran Dominion!
 
 
 ## Hell Mech
