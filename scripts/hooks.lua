@@ -165,7 +165,7 @@ end
 --HOOK_onPostLoadGame() --Needed when we continue the game
 --HOOK_onNextTurnHook()
 local function applyModes()
-    LOG("applyModes")
+    --LOG("applyModes")
     if isMissionBoard() then
         for i = 0, 2 do
             local pawn = Board:GetPawn(i)

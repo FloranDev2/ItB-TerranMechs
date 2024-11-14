@@ -189,7 +189,7 @@ function completeTrenchWar()
 end
 
 local function computeStartTurnTrenchWar()
-	LOG("TRUELCH --- computeStartTurnTrenchWar() (which initializes trenchWarMoveCount)")
+	--LOG("TRUELCH --- computeStartTurnTrenchWar() (which initializes trenchWarMoveCount)")
 	missionData().trenchWarMoveCount = 0
 	local enemyCount = countNonFrozenEnemies()
 	local enemyCountOk = enemyCount >= TRENCH_WARS_ENEMY_GOAL
@@ -330,12 +330,12 @@ local function HOOK_onNextTurnHook()
 	end
 
     if Game:GetTeamTurn() == TEAM_PLAYER then
-        LOG(" -> TEAM_PLAYER")
+        --LOG(" -> TEAM_PLAYER")
 
         --Trench War -> Reset data
         computeStartTurnTrenchWar()
     elseif Game:GetTeamTurn() == TEAM_ENEMY then
-    	LOG(" -> TEAM_ENEMY (turn count: " .. tostring(Game:GetTurnCount()) .. ")")
+    	--LOG(" -> TEAM_ENEMY (turn count: " .. tostring(Game:GetTurnCount()) .. ")")
 
     	--Trench War
     	computeEndTurnTrenchWar()
@@ -351,7 +351,7 @@ local HOOK_onSkillEnd = function(mission, pawn, weaponId, p1, p2)
 	end
 
     if weaponId == "Move" and isTerranMech(pawn:GetType()) then
-    	LOG("TRUELCH --- Incrementing trenchWarMoveCount...")
+    	--LOG("TRUELCH --- Incrementing trenchWarMoveCount...")
         missionData().trenchWarMoveCount = missionData().trenchWarMoveCount + 1 --atm (03/11/24), this causes an error
         --LOG("A Terran Mech moved -> move count: " .. tostring(missionData().trenchWarMoveCount))
     end
@@ -363,7 +363,7 @@ local HOOK_onPawnUndoMove = function(mission, pawn, undonePosition)
 	end
 
     if isTerranMech(pawn:GetType()) then
-    	LOG("TRUELCH --- Decrementing trenchWarMoveCount...")
+    	--LOG("TRUELCH --- Decrementing trenchWarMoveCount...")
     	missionData().trenchWarMoveCount = missionData().trenchWarMoveCount - 1
     	--LOG("A Terran Mech cancelled move -> move count: " .. tostring(missionData().trenchWarMoveCount))
     end
@@ -408,7 +408,7 @@ modApi.events.onMissionUpdate:subscribe(function(mission)
 	end
 
 	if Game:GetEventCount(EVENT_BUILDING_DAMAGED) > 0 then
-		LOG("A building has been damaged! -> trenchWarBuildingOk = false!")
+		--LOG("A building has been damaged! -> trenchWarBuildingOk = false!")
 		missionData().trenchWarBuildingOk = false
 	end
 end)
