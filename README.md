@@ -56,6 +56,6 @@ Cannot move, stable.
 
 ## Versions
 
-### v2.1.4
+### v2.1.0
 - Viking: a lot of polish for its weapon's visual (fixed sound, multiple artillery projectiles for torpedoes, no longer using push effects when the weapon isn't actually pushing, etc.)
 - Fixed Heaven's Devils achievement
