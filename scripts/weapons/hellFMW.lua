@@ -25,30 +25,6 @@ modApi:appendAsset("img/modes/icon_hellbat.png", resources .. "img/modes/icon_he
 
 local HEAVENS_DEVILS_GOAL = 1 --3 --Let's keep that commented
 
-
-
-
------------------------------------------------------ Custom functions
-
---[[
-local additionalEnemyPawns =
-{
-	"Dam_Pawn"
-}
-
-local function isEnemyPawn(pawn)
-	if pawn:GetTeam() == TEAM_ENEMY then
-		return true
-	end
-	for _,v in pairs(additionalEnemyPawns) do
-		if v == pawn:GetType() then
-			return true
-		end
-	end
-	return false
-end
-]]
-
 ----------------------------------------------------- Mode 1: Hellion
 
 truelch_HellMode1 = {
@@ -141,32 +117,24 @@ function truelch_HellMode1:fire(p1, p2, ret, fireDmg, immoFluid)
 			pushDamage.iFire = EFFECT_CREATE
 		end
 		-- Achv (Heaven's Devils) --->
-		--if Board:GetPawn(curr) ~= nil and isEnemyPawn(Board:GetPawn(curr)) then
-		--Let's just comment achv stuff for now
-		--[[
 		if Board:GetPawn(curr) ~= nil and Board:GetPawn(curr):IsEnemy() then
 			ignitedEnemies = ignitedEnemies + 1
 		end
-		]]
 		-- <--- Achv (Heaven's Devils)
 	end
 	ret:AddDamage(pushDamage)
 
 	-- [END] Achv (Heaven's Devils) --->
-	--Let's just comment achv stuff for now
-	--[[
 	local isTargetEnemy = true
 	if Board:GetPawn(p2) ~= nil then
-		--isTargetEnemy = isEnemyPawn(Board:GetPawn(p2))
 		isTargetEnemy = Board:GetPawn(p2):IsEnemy()
 	end
 
-	LOG("isTargetEnemy: " .. tostring(isTargetEnemy) .. ", ignitedEnemies: " .. tostring(ignitedEnemies))
+	--LOG("isTargetEnemy: " .. tostring(isTargetEnemy) .. ", ignitedEnemies: " .. tostring(ignitedEnemies))
 	
 	if not isTargetEnemy and ignitedEnemies >= HEAVENS_DEVILS_GOAL then
 		ret:AddScript("completeHeavensDevils()")
 	end
-	]]
 	-- <--- [END] Achv (Heaven's Devils)
 end
 

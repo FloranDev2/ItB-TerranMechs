@@ -11,8 +11,6 @@
 
 local mod = modApi:getCurrentMod()
 local scriptPath = mod.scriptPath
---local utils = require(scriptPath .. "libs/utils")
---local difficultyEvents = require(scriptPath .. "libs/difficultyEvents")
 local achvExt = require(scriptPath.."libs/achievementExt")
 
 --FMW
@@ -29,13 +27,6 @@ local squad = "truelch_TerranMechs"
 --new
 local CREATOR = "Truelch"
 local SQUAD = "truelch_TerranMechs"
-
---Doesn't work... not sure if I need this anyway
---[[
-local game_savedata = GAME_savedata(CREATOR, SQUAD, "Achievements")
-LOG("game_savedata: " .. tostring(game_savedata))
-]]
-
 
 ----------------------------------------------------- My Helper functions
 
@@ -84,44 +75,38 @@ local function isMission()
 		and mission ~= Mission_Test
 end
 
-local function isMissionBoard()
-	return true
-		and isMission()
-		and Board ~= nil
-		and Board:IsTipImage() == false
-end
-
-local function isGameData()
-	return true
-		and GAME ~= nil
-		and GAME.truelch_TerranMechs ~= nil
-		and GAME.truelch_TerranMechs.achievementData ~= nil
-end
-
 local function gameData()
 	if GAME.truelch_TerranMechs == nil then
 		GAME.truelch_TerranMechs = {}
 	end
 
-	if GAME.truelch_TerranMechs.achievementData == nil then
-		GAME.truelch_TerranMechs.achievementData = {}
-	end
-
-	return GAME.truelch_TerranMechs.achievementData
+	return GAME.truelch_TerranMechs
 end
 
 local function missionData()
+	--LOG(" ---------- missionData()")
 	local mission = GetCurrentMission()
 
 	if mission.truelch_TerranMechs == nil then
 		mission.truelch_TerranMechs = {}
 	end
 
-	if mission.truelch_TerranMechs.achievementData == nil then
-		mission.truelch_TerranMechs.achievementData = {}
+	--Attempt to fix
+	if mission.truelch_TerranMechs.transformersOk == nil then
+		mission.truelch_TerranMechs.transformersOk = true
 	end
 
-	return mission.truelch_TerranMechs.achievementData
+    --Transformers
+    if mission.truelch_TerranMechs.prevModes == nil then
+    	--LOG("missionData() -> Initializing previous modes table!")
+    	mission.truelch_TerranMechs.prevModes = {}
+    	for i = 0, 2 do
+    		mission.truelch_TerranMechs.prevModes[i] = "None"
+    	end
+    end
+
+    --Return
+	return mission.truelch_TerranMechs
 end
 
 ----------------------------------------------------- Achievements declaration
@@ -277,11 +262,14 @@ local function checkModeB(pawn, index)
 
     local currentMode = fmw:FM_GetMode(pawn:GetSpace())
     --LOG("currentMode: " .. currentMode)
+    --LOG("BEFORE BUG?")
 
     if currentMode == missionData().prevModes[pawn:GetId()] then
     	missionData().transformersOk = false
     	--LOG("------------------------------------------------------------------> Transformers achievement KO!")
     end
+
+    --LOG("AFTER BUG?")
 
     --End
     if Game:GetTurnCount() == 0 then

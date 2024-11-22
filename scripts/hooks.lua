@@ -1,8 +1,6 @@
 ----------------------------------------------- IMPORTS -----------------------------------------------
---local mod = mod_loader.mods[modApi.currentMod]
 local mod = modApi:getCurrentMod() --same, but better (thx Lemonymous!)
 local scriptPath = mod.scriptPath
---local utils = require(scriptPath .."libs/utils")
 
 --FMW
 local truelch_terran_fmw = require(scriptPath .. "fmw/FMW") --not needed?
@@ -37,25 +35,25 @@ end
 local function isGameData()
     return true
         and GAME ~= nil
-        and GAME.truelch_TerranMechs ~= nil --GAME.terran_mechs ~= nil
+        and GAME.truelch_TerranMechs ~= nil
 end
 
 local function gameData()
-    if GAME.truelch_TerranMechs == nil then --if GAME.terran_mechs == nil then
-        GAME.truelch_TerranMechs = {} --GAME.terran_mechs = {}
+    if GAME.truelch_TerranMechs == nil then
+        GAME.truelch_TerranMechs = {}
     end
 
-    return GAME.truelch_TerranMechs --return GAME.terran_mechs
+    return GAME.truelch_TerranMechs
 end
 
 local function missionData()
     local mission = GetCurrentMission()
 
-    if mission.truelch_TerranMechs == nil then --if mission.terran_mechs == nil then
-        mission.truelch_TerranMechs = {} --mission.terran_mechs = {}
+    if mission.truelch_TerranMechs == nil then
+        mission.truelch_TerranMechs = {}
     end
 
-    return mission.truelch_TerranMechs --return mission.terran_mechs
+    return mission.truelch_TerranMechs
 end
 
 
@@ -128,7 +126,7 @@ local function applyModeOnPawn(pawn, weaponIdx)
     elseif mode == "truelch_CrucioMode1" then
         --LOG("(apply) Crucio Tank")
         pawn:SetMoveSpeed(3)
-        pawn:SetPushable(true)
+        --pawn:SetPushable(true)
         if pawn:GetType() == "CrucioMech" then
             pawn:SetCustomAnim("crucio_tank")
         end
@@ -136,7 +134,7 @@ local function applyModeOnPawn(pawn, weaponIdx)
     elseif mode == "truelch_CrucioMode2" then
         --LOG("(apply) Crucio Siege")
         pawn:SetMoveSpeed(0)
-        pawn:SetPushable(false)
+        --pawn:SetPushable(false)
         if pawn:GetType() == "CrucioMech" then
             pawn:SetCustomAnim("crucio_siege")
         end
@@ -144,7 +142,7 @@ local function applyModeOnPawn(pawn, weaponIdx)
     elseif mode == "truelch_LiberatorMode1" then --------NEW!!!
         --LOG("(apply) Liberator Fighter")
         pawn:SetMoveSpeed(2)
-        pawn:SetPushable(true)
+        --pawn:SetPushable(true)
         if pawn:GetType() == "LiberatorMech" then
             pawn:SetCustomAnim("liberator_fighter")
         end
@@ -152,7 +150,7 @@ local function applyModeOnPawn(pawn, weaponIdx)
     elseif mode == "truelch_LiberatorMode2" then --------NEW!!!
         --LOG("(apply) Liberator Defender")
         pawn:SetMoveSpeed(0)
-        pawn:SetPushable(false)
+        --pawn:SetPushable(false)
         if pawn:GetType() == "LiberatorMech" then
             pawn:SetCustomAnim("liberator_defender")
         end
@@ -278,7 +276,7 @@ local function returnToDefaultModeB(pawn, pawnId, index)
         --LOG("Changing crucio's siege mode to tank mode!")
         --fmw:FM_SetMode(pawnId, "truelch_CrucioMode1")
         pawn:SetMoveSpeed(3)
-        pawn:SetPushable(true)
+        --pawn:SetPushable(true)
         if pawn:GetType() == "CrucioMech" then
             pawn:SetCustomAnim("crucio_tank")
         end
