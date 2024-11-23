@@ -61,7 +61,6 @@ function truelch_CrucioMode1:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, SiegeSe
 
 	--Friendly fire
 	local targetPawn = Board:GetPawn(target)
-	--if targetPawn ~= nil and not isEnemyPawn(targetPawn) and not friendlyFire then
 	if targetPawn ~= nil and not targetPawn:IsEnemy() and not friendlyFire then
 		tankDmg = 0
 	elseif Board:IsBuilding(target) and not friendlyFire then
@@ -94,7 +93,7 @@ end
 
 truelch_CrucioMode2 = truelch_CrucioMode1:new{
 	aFM_name = "Siege Mode",
-	aFM_desc = "Makes the Crucio Mech immobile and stable.\nShock Cannon: artillery shot that deals 4 damage to the main target and 1 damage to surrounding tiles.", --\nThey are also pulled if there's nothing in the center. <-- not anymore :( :(
+	aFM_desc = "Makes the Crucio Mech immobile.\nShock Cannon: artillery shot that deals 4 damage to the main target and 1 damage to surrounding tiles.", --\nThey are also pulled if there's nothing in the center. <-- not anymore :( :(
 	aFM_icon = "img/modes/icon_crucio_siege.png",
 	--Art
 	image = "effects/shotup_standardshell_missile.png",
@@ -221,7 +220,7 @@ end
 truelch_CrucioWeapon = aFM_WeaponTemplate:new{
 	--Infos
 	Name = "Crucio Weapons",
-	Description = "Tank mode:\nFires a pushing projectile that deals 1 damage.\n\nSiege mode: is immobile and Stable.\nShoots a powerful artillery shot that that deals 4 damage on the center and 1 damage to adjacent tiles.\nAdjacent tiles are also pulled if there's nothing in the center.",
+	Description = "Tank mode:\nFires a pushing projectile that deals 1 damage.\n\nSiege mode: is immobile.\nShoots a powerful artillery shot that that deals 4 damage on the center and 1 damage to adjacent tiles.\nAdjacent tiles are also pulled if there's nothing in the center.",
 	Class = "Ranged",
 
 	--Ugrades
@@ -312,7 +311,7 @@ end
 function truelch_CrucioWeapon:FM_OnModeSwitch(p)
 	if self:FM_GetMode(p) == "truelch_CrucioMode1" then
 		Pawn:SetMoveSpeed(0)
-		Pawn:SetPushable(false)
+		--Pawn:SetPushable(false)
         if Pawn:GetType() == "CrucioMech" then
             Pawn:SetCustomAnim("crucio_siege")
         end
@@ -322,7 +321,7 @@ function truelch_CrucioWeapon:FM_OnModeSwitch(p)
 		Board:AddEffect(effect)
 	elseif self:FM_GetMode(p) == "truelch_CrucioMode2" then
 		Pawn:SetMoveSpeed(3)
-		Pawn:SetPushable(true)
+		--Pawn:SetPushable(true)
         if Pawn:GetType() == "CrucioMech" then
             Pawn:SetCustomAnim("crucio_tank")
         end

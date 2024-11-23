@@ -1,4 +1,4 @@
-# Terran Mechs (v2.1.0)
+# Terran Mechs (v2.1.1)
 
 IMPORTANT NOTE: this squad is now compatible with the Advanced Edition! :)
 
@@ -55,6 +55,10 @@ Cannot move, stable.
 
 
 ## Versions
+
+### v2.1.1
+- Cruco Mech Siege Mode no longer make it stable (in short, in allows to allies to push him, allowing new strategies and most importantly, move it out from being in water or smoke)
+- Fixed mission data issue with second part of the last mission
 
 ### v2.1.0
 - Viking: a lot of polish for its weapon's visual (fixed sound, multiple artillery projectiles for torpedoes, no longer using push effects when the weapon isn't actually pushing, etc.)
