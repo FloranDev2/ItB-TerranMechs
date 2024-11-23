@@ -3,13 +3,12 @@ local path = mod_loader.mods[modApi.currentMod].scriptPath
 local resources = mod_loader.mods[modApi.currentMod].resourcePath
 
 local fmw = require(path.."fmw/api")
---local weaponPreview = require(path .. "libs/weaponPreview")
 
 --Icons
-modApi:appendAsset("img/weapons/crucio_weapons.png", resources .."img/weapons/crucio_weapons.png")
+modApi:appendAsset("img/weapons/crucio_weapons.png", resources.."img/weapons/crucio_weapons.png")
 
-modApi:appendAsset("img/modes/icon_crucio_tank.png", resources .. "img/modes/icon_crucio_tank.png")
-modApi:appendAsset("img/modes/icon_crucio_siege.png", resources .. "img/modes/icon_crucio_siege.png")
+modApi:appendAsset("img/modes/icon_crucio_tank.png", resources.."img/modes/icon_crucio_tank.png")
+modApi:appendAsset("img/modes/icon_crucio_siege.png", resources.."img/modes/icon_crucio_siege.png")
 
 ----------------------------------------------------- Utility functions
 
@@ -26,7 +25,7 @@ truelch_Wall = Pawn:new{
 ----------------------------------------------------- Mode 1: Tank
 truelch_CrucioMode1 = {
 	aFM_name = "Tank Mode",
-	aFM_desc = "Can move normally.\n90mm Twin Cannon: projectile that pushes its target and deals 1 damage.",
+	aFM_desc = "Can move normally.\n90mm Twin Cannon: projectile that pushes its target and deals 1 damage.\n\nNote: you cannot change mode after moving.",
 	aFM_icon = "img/modes/icon_crucio_tank.png",
 }
 
@@ -93,7 +92,9 @@ end
 
 truelch_CrucioMode2 = truelch_CrucioMode1:new{
 	aFM_name = "Siege Mode",
-	aFM_desc = "Makes the Crucio Mech immobile.\nShock Cannon: artillery shot that deals 4 damage to the main target and 1 damage to surrounding tiles.", --\nThey are also pulled if there's nothing in the center. <-- not anymore :( :(
+	aFM_desc = "Makes the Crucio Mech immobile."
+		.."\nShock Cannon: artillery shot that deals 4 damage to the main target and 1 damage to surrounding tiles."
+		.."\n\nNote: you cannot change mode after moving.", --\nThey are also pulled if there's nothing in the center. <-- not anymore :( :(
 	aFM_icon = "img/modes/icon_crucio_siege.png",
 	--Art
 	image = "effects/shotup_standardshell_missile.png",
@@ -189,14 +190,13 @@ function truelch_CrucioMode2:fire(p1, p2, ret, tankDmg, siegePrimaryDmg, siegeSe
 		if self.pull and Board:IsBlocked(p2, PATH_FLYER) == false then
 			push_event.iPush = dir_opposite
 			push_event.sImageMark = ""
-			push_event.sAnimation = "explopush1_" .. dir_opposite
+			push_event.sAnimation = "explopush1_"..dir_opposite
 		else
-			push_event.sAnimation = "explopush1_" .. dir
+			push_event.sAnimation = "explopush1_"..dir
 		end		
 
 		--importing my logic here --->
 		local targetPawn2 = Board:GetPawn(loc)
-		--if targetPawn2 ~= nil and isFriendlyPawn(targetPawn2) and not friendlyFire then
 		if targetPawn2 ~= nil and not targetPawn2:IsEnemy() and not friendlyFire then
 			siegeSecondaryDmg = 0
 		elseif Board:IsBuilding(loc) and not friendlyFire then
@@ -220,7 +220,11 @@ end
 truelch_CrucioWeapon = aFM_WeaponTemplate:new{
 	--Infos
 	Name = "Crucio Weapons",
-	Description = "Tank mode:\nFires a pushing projectile that deals 1 damage.\n\nSiege mode: is immobile.\nShoots a powerful artillery shot that that deals 4 damage on the center and 1 damage to adjacent tiles.\nAdjacent tiles are also pulled if there's nothing in the center.",
+	Description = "Tank mode:\nFires a pushing projectile that deals 1 damage."
+		.."\n\nSiege mode: is immobile."
+		.."\nShoots a powerful artillery shot that that deals 4 damage on the center and 1 damage to adjacent tiles."
+		.."\n\nNote: you cannot change mode after moving.",
+		--\nAdjacent tiles are also pulled if there's nothing in the center.", 	--Pull toward center doesn't exist anymore.
 	Class = "Ranged",
 
 	--Ugrades

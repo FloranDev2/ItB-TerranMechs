@@ -9,27 +9,27 @@ local fmw = require(scriptPath.."fmw/api")
 
 --
 local achvExt = require(scriptPath.."libs/achievementExt") --25/04/2023: will certainly need to be updated. Anyway, let's just comment that for now
---LOG("[hellFMW] achvExt: " .. tostring(achvExt))
+--LOG("[hellFMW] achvExt: "..tostring(achvExt))
 
 local achievements = require(scriptPath.."achievements") --25/04/2023: let's just put aside the achievements for now
---LOG("[hellFMW] achievements: " .. tostring(achievements))
+--LOG("[hellFMW] achievements: "..tostring(achievements))
 
 ----------------------------------------------------- Icons
 
-modApi:appendAsset("img/weapons/hell_weapons.png", resources .."img/weapons/hell_weapons.png")
+modApi:appendAsset("img/weapons/hell_weapons.png", resources.."img/weapons/hell_weapons.png")
 
-modApi:appendAsset("img/modes/icon_hellion.png", resources .. "img/modes/icon_hellion.png")
-modApi:appendAsset("img/modes/icon_hellbat.png", resources .. "img/modes/icon_hellbat.png")
+modApi:appendAsset("img/modes/icon_hellion.png", resources.."img/modes/icon_hellion.png")
+modApi:appendAsset("img/modes/icon_hellbat.png", resources.."img/modes/icon_hellbat.png")
 
 ----------------------------------------------------- Achievements
 
-local HEAVENS_DEVILS_GOAL = 1 --3 --Let's keep that commented
+local HEAVENS_DEVILS_GOAL = 3 --3
 
 ----------------------------------------------------- Mode 1: Hellion
 
 truelch_HellMode1 = {
 	aFM_name = "Hellion",
-	aFM_desc = "Return to normal move.\nInfernal flamethrower: ignite an adjacent tile and push the next tile forward.",
+	aFM_desc = "Return to normal move.\nInfernal flamethrower: ignite an adjacent tile and push the next tile forward.\n\nNote: you cannot change mode after moving.",
 	aFM_icon = "img/modes/icon_hellion.png",
 }
 
@@ -48,7 +48,7 @@ function truelch_HellMode1:targeting(point)
 end
 
 function truelch_HellMode1:fire(p1, p2, ret, fireDmg, immoFluid)
-	--LOG("A -> is tip image: " .. tostring(Board:IsTipImage()))
+	--LOG("A -> is tip image: "..tostring(Board:IsTipImage()))
 
 	local direction = GetDirection(p2 - p1)
 	local distance = p1:Manhattan(p2)
@@ -130,7 +130,7 @@ function truelch_HellMode1:fire(p1, p2, ret, fireDmg, immoFluid)
 		isTargetEnemy = Board:GetPawn(p2):IsEnemy()
 	end
 
-	--LOG("isTargetEnemy: " .. tostring(isTargetEnemy) .. ", ignitedEnemies: " .. tostring(ignitedEnemies))
+	--LOG("isTargetEnemy: "..tostring(isTargetEnemy)..", ignitedEnemies: "..tostring(ignitedEnemies))
 	
 	if not isTargetEnemy and ignitedEnemies >= HEAVENS_DEVILS_GOAL then
 		ret:AddScript("completeHeavensDevils()")
@@ -143,7 +143,7 @@ end
 
 truelch_HellMode2 = truelch_HellMode1:new{
 	aFM_name = "Hellbat",
-	aFM_desc = "Reduces move by 2.\nNapalm Spray: ignite and push 3 tiles in front.",
+	aFM_desc = "Reduces move by 2.\nNapalm Spray: ignite and push 3 tiles in front.\n\nNote: you cannot change mode after moving.",
 	aFM_icon = "img/modes/icon_hellbat.png",
 }
 
@@ -160,7 +160,7 @@ function truelch_HellMode2:targeting(point)
 end
 
 function truelch_HellMode2:CustomShot(ret, p1, pos, direction, fireDmg, immoFluid, ignitedEnemies)
-	--LOG("truelch_HellMode2:CustomShot(ignitedEnemies: " .. tostring(ignitedEnemies) .. ")")
+	--LOG("truelch_HellMode2:CustomShot(ignitedEnemies: "..tostring(ignitedEnemies)..")")
 	local spaceDamage = SpaceDamage(pos, 0, direction)
 	spaceDamage.iFire = EFFECT_CREATE
 	spaceDamage.sAnimation = "flamethrower1_"..direction	
@@ -238,7 +238,10 @@ end
 truelch_HellWeapon = aFM_WeaponTemplate:new{
 	--Infos
 	Name = "Hell Weapons",
-	Description = "Hellion:\nIgnites an adjacent targets and pushes the next tile forward.\n\nHellbat: has a move reduced by 2.\nIgnites and pushes 3 tiles in front. Has a move reduced by 2.",
+	Description = "Hellion:\nIgnites an adjacent targets and pushes the next tile forward."
+		.."\n\nHellbat: has a move reduced by 2."
+		.."\nIgnites and pushes 3 tiles in front. Has a move reduced by 2."
+		.."\n\nNote: you cannot change mode after moving.",
 	Class = "Prime",
 
 	--Menu stats

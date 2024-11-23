@@ -9,15 +9,15 @@ local fmw = require(path.."fmw/api")
 
 ----------------------------------------------------- Icons
 
-modApi:appendAsset("img/weapons/viking_weapons.png", resources .."img/weapons/viking_weapons.png")
+modApi:appendAsset("img/weapons/viking_weapons.png", resources.."img/weapons/viking_weapons.png")
 
-modApi:appendAsset("img/modes/icon_viking_fighter.png", resources .. "img/modes/icon_viking_fighter.png")
-modApi:appendAsset("img/modes/icon_viking_assault.png", resources .. "img/modes/icon_viking_assault.png")
+modApi:appendAsset("img/modes/icon_viking_fighter.png", resources.."img/modes/icon_viking_fighter.png")
+modApi:appendAsset("img/modes/icon_viking_assault.png", resources.."img/modes/icon_viking_assault.png")
 
 --Effects
-modApi:appendAsset("img/effects/shotup_torpedo1.png", resources .. "img/effects/shotup_torpedo1.png")
-modApi:appendAsset("img/effects/shotup_torpedo2.png", resources .. "img/effects/shotup_torpedo2.png")
-modApi:appendAsset("img/effects/shotup_torpedo3.png", resources .. "img/effects/shotup_torpedo3.png")
+modApi:appendAsset("img/effects/shotup_torpedo1.png", resources.."img/effects/shotup_torpedo1.png")
+modApi:appendAsset("img/effects/shotup_torpedo2.png", resources.."img/effects/shotup_torpedo2.png")
+modApi:appendAsset("img/effects/shotup_torpedo3.png", resources.."img/effects/shotup_torpedo3.png")
 
 ----------------------------------------------------- Custom functions
 
@@ -44,7 +44,10 @@ end
 
 truelch_VikingMode1 = {
 	aFM_name = "Fighter Mode",
-	aFM_desc = "Flying and 4 move.\nLanzer Torpedoes: hit either the first ground or first air target.\nDeal 2 damage to flying or massive enemy units.",
+	aFM_desc = "Flying and 4 move."
+		.."\nLanzer Torpedoes: hit either the first ground or first air target."
+		.."\nDeal 2 damage to flying or massive enemy units."
+		.."\n\nNote: you cannot change mode after moving.",
 	aFM_icon = "img/modes/icon_viking_fighter.png",
 	--Custom
 	BonusDmg = 2,
@@ -203,7 +206,7 @@ end
 
 truelch_VikingMode2 = truelch_VikingMode1:new{
 	aFM_name = "Assault Mode",
-	aFM_desc = "Move: 3 (ground).\nTwin Gatling Cannons: fire 2 projectiles that deal 1 damage each.\nMax range: 3.",
+	aFM_desc = "Move: 3 (ground).\nTwin Gatling Cannons: fire 2 projectiles that deal 1 damage each.\nMax range: 3.\n\nNote: you cannot change mode after moving.",
 	aFM_icon = "img/modes/icon_viking_assault.png",	
 	--Art
 	impactsound = "/impact/generic/explosion_large",
@@ -241,7 +244,7 @@ end
 
 --Animation doesn't work but for some reason, it fixed the incorrect custom arc
 function truelch_VikingMode2:CustomShot(ret, p1, target, dir, aoe)
-	--LOG("CustomShot(p1: " .. p1:GetString() .. ", target: " .. target:GetString() .. ")")
+	--LOG("CustomShot(p1: "..p1:GetString()..", target: "..target:GetString()..")")
 	local spaceDamage = SpaceDamage(target, self.Damage)
 	--spaceDamage.sAnimation = "explopush2_"..dir
 	spaceDamage.sAnimation = "ExploArt1"
@@ -252,7 +255,7 @@ function truelch_VikingMode2:CustomShot(ret, p1, target, dir, aoe)
 
 	-- Muzzle flash effect --->
 	local muzzle = SpaceDamage(p1 + DIR_VECTORS[dir])
-	local muzzleAnim = "truelch_gatling_muzzle_flash_" .. dir
+	local muzzleAnim = "truelch_gatling_muzzle_flash_"..dir
 	muzzle.sAnimation = muzzleAnim
 	ret:AddDamage(muzzle)
 	-- <--- Muzzle flash effect
@@ -406,7 +409,13 @@ end
 truelch_VikingWeapon = aFM_WeaponTemplate:new{
 	--Infos
 	Name = "Viking Weapons",
-	Description = "Fighter mode:\nFires a pushing projectile that phases through mountains and buildings and hits either the first ground or air target.\n+2 damage against flying or massive enemy units.\n\nAssault mode: loses 1 move and Flying.\nFires 2 projectiles that deal 1 damage each.\nMax range: 3.",
+	Description = "Fighter mode:"
+		.."\nFires a pushing projectile that phases through mountains and buildings and hits either the first ground or air target."
+		.."\n+2 damage against flying or massive enemy units."
+		.."\n\nAssault mode: loses 1 move and Flying."
+		.."\nFires 2 projectiles that deal 1 damage each."
+		.."\nMax range: 3."
+		.."\n\nNote: you cannot change mode after moving.",
 	Class = "Brute",
 
 	--Menu stats
