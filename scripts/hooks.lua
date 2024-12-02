@@ -306,7 +306,7 @@ local HOOK_onPawnUndoMove = function(mission, pawn, undonePosition)
 end
 
 local HOOK_onSkillEnd = function(mission, pawn, weaponId, p1, p2)
-    if weaponId == "Move" then
+    if pawn ~= nil and weaponId == "Move" then
         setMorphWeaponSwitchModeDisabled(pawn:GetId(), true) --Disable switch
     end
 end
