@@ -165,10 +165,23 @@ end
 local function applyModes()
     --LOG("applyModes")
     if isMissionBoard() then
+        --The following doesn't work with my Mech Divers / Hell Breachers mod (after a new Mech is spawned)
+        --[[
         for i = 0, 2 do
             local pawn = Board:GetPawn(i)
             applyModeOnPawn(pawn, 1)
             applyModeOnPawn(pawn, 2)
+        end
+        ]]
+
+        for j = 0, 7 do
+            for i = 0, 7 do
+               local pawn = Board:GetPawn(Point(i, j))
+               if pawn ~= nil and pawn:IsMech() then
+                    applyModeOnPawn(pawn, 1)
+                    applyModeOnPawn(pawn, 2)
+                end
+            end
         end
     end
 end
@@ -220,9 +233,23 @@ local function setMorphWeaponSwitchModeDisabled(p, b)
 end
 
 local function enableSwitchForAllMechs()
+    --The following doesn't work with my Mech Divers / Hell Breachers mod (after a new Mech is spawned)
+    --[[
     for i = 0, 2 do
         local pawnId = Board:GetPawn(i):GetId()
         setMorphWeaponSwitchModeDisabled(pawnId, false)
+    end
+    ]]
+
+    --Hoping that we don't have mechs outside of Board... (orbital stuff? But they can't die anyway?)
+    for j = 0, 7 do
+        for i = 0, 7 do
+            local pawn = Board:GetPawn(Point(i, j))
+            if pawn ~= nil and pawn:IsMech() then
+                local pawnId = pawn:GetId()
+                setMorphWeaponSwitchModeDisabled(pawnId, false)
+            end
+        end
     end
 end
 
@@ -291,10 +318,23 @@ end
 
 local function returnToDefaultModeForAllMechs()
     --LOG("returnToDefaultModeForAllMechs()")
+    --The following doesn't work with my Mech Divers / Hell Breachers mod (after a new Mech is spawned)
+    --[[
     for i = 0, 2 do
         local pawn = Board:GetPawn(i)
         local pawnId = pawn:GetId()
         returnToDefaultMode(pawn, pawnId)
+    end
+    ]]
+
+    for j = 0, 7 do
+        for i = 0, 7 do
+            local pawn = Board:GetPawn(Point(i, j))
+            if pawn ~= nil and pawn:IsMech() then
+                local pawnId = pawn:GetId()
+                returnToDefaultMode(pawn, pawnId)
+            end
+        end
     end
 end
 
