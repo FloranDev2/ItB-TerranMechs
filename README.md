@@ -1,4 +1,4 @@
-# Terran Mechs (v2.1.1)
+# Terran Mechs (v2.1.2)
 
 IMPORTANT NOTE: this squad is now compatible with the Advanced Edition! :)
 
@@ -55,6 +55,9 @@ Cannot move, stable.
 
 
 ## Versions
+
+### v2.1.2
+- Compatibility with Hell Breachers
 
 ### v2.1.1
 - Crucio Mech Siege Mode no longer make it stable (in short, in allows to allies to push him, allowing new strategies and most importantly, move it out from being in water or smoke)
